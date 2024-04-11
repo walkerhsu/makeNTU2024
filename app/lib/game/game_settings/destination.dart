@@ -1,7 +1,10 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:mapbox_search/mapbox_search.dart';
+
+import 'location_picker.dart';
 
 class DestinationField extends StatefulWidget {
   const DestinationField({
@@ -35,6 +38,7 @@ class _DestinationFieldState extends State<DestinationField> {
       RegExp zhuyinRegex = RegExp(r'[\u3100-\u312F\u31A0-\u31BF]+');
       return zhuyinRegex.hasMatch(input);
     }
+
     if (value == null || value.isEmpty || containsZhuyin(value)) {
       return;
     }
@@ -99,6 +103,9 @@ class _DestinationFieldState extends State<DestinationField> {
   bool get _showErrorBelowField => _hasValidationError;
 
   List<Map<String, String>> filteredLocations = [];
+  double destLat = 24.0;
+  double destLng = 121.0;
+
   @override
   Widget build(BuildContext context) {
     if (widget.showFilters) {
@@ -154,6 +161,46 @@ class _DestinationFieldState extends State<DestinationField> {
             ? Colors.red.shade100
             : Theme.of(context).inputDecorationTheme.fillColor,
         errorText: _showErrorBelowField ? '' : null,
+        suffixIcon: IconButton(
+          icon: const Icon(Icons.map),
+          onPressed: () {
+            _controller.clear();
+            // Open dialog with map
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                GlobalKey<State> mapboxMapKey = GlobalKey<State>();
+                void setLatLng(LatLng latlng) {
+                  setState(() {
+                    destLat = latlng.latitude;
+                    destLng = latlng.longitude;
+                  });
+                }
+                return AlertDialog(
+                  title: const Text('Choose the destination'),
+                  content: LocationPickerDialog(
+                    mapboxMapKey: mapboxMapKey,
+                    destLat: destLat,
+                    destLng: destLng,
+                    setLatLng: setLatLng,
+                  ),
+                  actionsAlignment: MainAxisAlignment.center,
+                  actions: [
+                    TextButton(
+                      child: const Text('Confirm'),
+                      onPressed: () {
+                        print(destLat);
+                        print(destLng);
+                        _controller.text = "$destLat, $destLng";
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ],
+                );
+              },
+            );
+          },
+        ),
       ),
       onTap: () {
         widget.setShowDestinationFilters(true);

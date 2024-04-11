@@ -11,7 +11,7 @@ import 'theme/theme_data.dart';
 
 Future main() async {
   await dotenv.load(fileName: "assets/.env");
-  MapBoxSearch.init(dotenv.env['MPABOX_SECRET_KEY']!);
+  MapBoxSearch.init(dotenv.env['MAPBOX_ACCESS_TOKEN']!);
   runApp(const MyApp());
 }
 
@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print(dotenv.env['MPABOX_SECRET_KEY']);
+    print(dotenv.env['MAPBOX_ACCESS_TOKEN']);
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
