@@ -39,6 +39,7 @@ dependencies:
   flutter_tts: ^4.0.1
   flutter_dotenv: ^5.1.0
   mapbox_search: any
+  mapbox_gl: ^0.16.0
 
 dev_dependencies:
   flutter_test:
