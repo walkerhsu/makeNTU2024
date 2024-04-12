@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:quickalert/quickalert.dart';
+import 'package:mapbox_gl/mapbox_gl.dart';
 
 import 'destination.dart';
 import 'game_mode.dart';
@@ -17,6 +17,7 @@ class _GameSettingsPageState extends State<GameSettingsPage> {
   final _textFormKeyGame = GlobalKey<FormFieldState<String>>();
 
   String? _destination;
+  LatLng? _destLatLng;
   String? _gameType;
   
   bool _showDestinationFilters = false;
@@ -28,16 +29,11 @@ class _GameSettingsPageState extends State<GameSettingsPage> {
     });
   }
 
-  void setDestination(String? value) {
+  void setDestination(String? value, LatLng? latLng) {
     setState(() {
       _destination = value;
+      _destLatLng = latLng;
     });
-    QuickAlert.show(
-      context: context,
-      type: QuickAlertType.info,
-      text: value,
-      confirmBtnColor: Colors.red,
-    );
   }
 
   void setShowDestinationFilters(bool value) {
@@ -67,9 +63,7 @@ class _GameSettingsPageState extends State<GameSettingsPage> {
                 height: 20,
               ),
               DestinationField(
-                  setValue: (value) {
-                    setDestination(value);
-                  },
+                  setValue: setDestination,
                   setShowGameTypeFilters: setShowGameTypeFilters,
                   setShowDestinationFilters: setShowDestinationFilters,
                   showFilters: _showDestinationFilters,
@@ -103,6 +97,7 @@ class _GameSettingsPageState extends State<GameSettingsPage> {
                 }
                 Navigator.pushNamed(context, '/game/main', arguments: {
                   'destination': _destination,
+                  'destLatLng': _destLatLng,
                   'gameType': _gameType,
                 });
               },

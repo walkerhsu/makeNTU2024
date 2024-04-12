@@ -3,13 +3,12 @@ import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class LocationPickerDialog extends StatefulWidget {
-  const LocationPickerDialog({
-    required this.mapboxMapKey,
-    required this.destLat,
-    required this.destLng,
-    required this.setLatLng,
-    super.key
-  });
+  const LocationPickerDialog(
+      {required this.mapboxMapKey,
+      required this.destLat,
+      required this.destLng,
+      required this.setLatLng,
+      super.key});
 
   final GlobalKey<State> mapboxMapKey;
   final double destLat;
@@ -21,6 +20,7 @@ class LocationPickerDialog extends StatefulWidget {
 
 class _LocationPickerDialogState extends State<LocationPickerDialog> {
   late MapboxMapController? mapController;
+  Symbol? symbol;
 
   _onMapCreated(MapboxMapController controller) async {
     mapController = controller;
@@ -40,10 +40,18 @@ class _LocationPickerDialogState extends State<LocationPickerDialog> {
         trackCameraPosition: true,
         initialCameraPosition: CameraPosition(
           target: LatLng(widget.destLat, widget.destLng),
-          zoom: 9.0,
+          zoom: 13.0,
         ),
         onMapClick: (_, latlng) async {
           widget.setLatLng(latlng);
+          if (symbol != null) {
+            await mapController?.removeSymbol(symbol!);
+          }
+          symbol = await mapController?.addSymbol(SymbolOptions(
+            geometry: LatLng(latlng.latitude, latlng.longitude),
+            iconImage: "assets/images/map_mark.png",
+            iconSize: 0.2,
+          ));
           await mapController?.animateCamera(
             CameraUpdate.newCameraPosition(
               CameraPosition(

@@ -16,16 +16,26 @@ class DestinationField extends StatefulWidget {
     super.key,
   });
 
-  final void Function(String?) setValue;
+  final void Function(String?, LatLng?) setValue;
   final void Function(bool) setShowGameTypeFilters;
   final void Function(bool) setShowDestinationFilters;
   final bool showFilters;
   final GlobalKey<FormFieldState<String>> textFormKey;
+
   @override
   State<DestinationField> createState() => _DestinationFieldState();
 }
 
 class _DestinationFieldState extends State<DestinationField> {
+  final TextEditingController _controller = TextEditingController();
+  String? _validationError;
+  bool get _hasValidationError => _validationError != null;
+  bool get _showErrorBelowField => _hasValidationError;
+
+  List<Map<String, dynamic>> filteredLocations = [];
+  double destLat = 25.034078069796244;
+  double destLng = 121.56453889999999;
+
   String? Function(String?)? get validator => (value) {
         if (value == null || value.isEmpty) {
           return 'Username cannot be empty';
@@ -42,7 +52,7 @@ class _DestinationFieldState extends State<DestinationField> {
     if (value == null || value.isEmpty || containsZhuyin(value)) {
       return;
     }
-    List<Map<String, String>> results = [];
+    List<Map<String, dynamic>> results = [];
     var geocoding = GeoCoding(
       country: "TW",
       limit: 5,
@@ -66,30 +76,16 @@ class _DestinationFieldState extends State<DestinationField> {
     }
     for (MapBoxPlace place in places.success!) {
       String address = place.properties?.address ?? "";
-      if (address == "" && place.geometry != null) {
+      double? lat = place.geometry?.coordinates.lat;
+      double? long = place.geometry?.coordinates.long;
+      if (address == "" && lat != null && long != null) {
         // reverse geocoding
-        double lat = place.geometry!.coordinates.lat;
-        double long = place.geometry!.coordinates.long;
-        var reverseGeoCoding = GeoCoding(
-          limit: 1,
-        );
-
-        Future<ApiResponse<List<MapBoxPlace>>> getAddress() =>
-            reverseGeoCoding.getAddress(
-              (lat: lat, long: long),
-            );
-
-        ApiResponse<List<MapBoxPlace>> addressResponse = await getAddress();
-        if (addressResponse.success != null) {
-          address = addressResponse.success![0].text ?? "";
-        } else {
-          log(addressResponse.failure!.error ?? "");
-          address = "";
-        }
+        address = await reverseGeoCoding(lat, long);
       }
       results.add({
         "text": place.text ?? "",
         "address": place.properties?.address ?? address,
+        "coordinates": lat != null && long != null ? "$lat, $long" : "",
       });
     }
     setState(() {
@@ -97,14 +93,36 @@ class _DestinationFieldState extends State<DestinationField> {
     });
   }
 
-  final TextEditingController _controller = TextEditingController();
-  String? _validationError;
-  bool get _hasValidationError => _validationError != null;
-  bool get _showErrorBelowField => _hasValidationError;
+  Future<String> reverseGeoCoding(double lat, double long) async {
+    var reverseGeoCoding = GeoCoding(
+      limit: 1,
+    );
 
-  List<Map<String, String>> filteredLocations = [];
-  double destLat = 24.0;
-  double destLng = 121.0;
+    Future<ApiResponse<List<MapBoxPlace>>> getAddress() =>
+        reverseGeoCoding.getAddress(
+          (lat: lat, long: long),
+        );
+
+    ApiResponse<List<MapBoxPlace>> addressResponse = await getAddress();
+    if (addressResponse.success != null) {
+      return addressResponse.success?[0].text ?? "";
+    } else {
+      log(addressResponse.failure!.error ?? "");
+      return "";
+    }
+  }
+
+  void saveValue(String? value) {
+    widget.setValue(value, LatLng(destLat, destLng));
+  }
+
+  void setLatLng(LatLng latlng) {
+    log(latlng.toString());
+    setState(() {
+      destLat = latlng.latitude;
+      destLng = latlng.longitude;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -170,12 +188,6 @@ class _DestinationFieldState extends State<DestinationField> {
               context: context,
               builder: (BuildContext context) {
                 GlobalKey<State> mapboxMapKey = GlobalKey<State>();
-                void setLatLng(LatLng latlng) {
-                  setState(() {
-                    destLat = latlng.latitude;
-                    destLng = latlng.longitude;
-                  });
-                }
                 return AlertDialog(
                   title: const Text('Choose the destination'),
                   content: LocationPickerDialog(
@@ -189,9 +201,10 @@ class _DestinationFieldState extends State<DestinationField> {
                     TextButton(
                       child: const Text('Confirm'),
                       onPressed: () {
-                        print(destLat);
-                        print(destLng);
-                        _controller.text = "$destLat, $destLng";
+                        reverseGeoCoding(destLat, destLng).then((address) {
+                          _controller.text =
+                              address == "" ? "$destLat, $destLng" : address;
+                        });
                         Navigator.of(context).pop();
                       },
                     ),
@@ -207,7 +220,7 @@ class _DestinationFieldState extends State<DestinationField> {
         widget.setShowGameTypeFilters(false);
       },
       onChanged: searchPlaces,
-      onSaved: widget.setValue,
+      onSaved: saveValue,
       validator: (value) {
         final error = validator?.call(value);
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -248,6 +261,16 @@ class _DestinationFieldState extends State<DestinationField> {
                   onTap: () {
                     _controller.text = filteredLocations[index]["text"]!;
                     searchPlaces(filteredLocations[index]["text"]!);
+                    if (filteredLocations[index]["coordinates"] != "") {
+                      log((filteredLocations[index]["coordinates"].split(", ")[0] as String));
+                      log((filteredLocations[index]["coordinates"].split(", ")[1] as String));
+                      setLatLng(LatLng(
+                        double.parse((filteredLocations[index]["coordinates"]
+                            .split(", ")[0] as String)),
+                        double.parse((filteredLocations[index]["coordinates"]
+                            .split(", ")[1] as String)),
+                      ));
+                    }
                     widget.setShowDestinationFilters(false);
                   },
                 ),
