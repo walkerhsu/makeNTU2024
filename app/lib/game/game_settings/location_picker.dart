@@ -19,10 +19,35 @@ class LocationPickerDialog extends StatefulWidget {
 }
 
 class _LocationPickerDialogState extends State<LocationPickerDialog> {
-  late MapboxMapController? mapController;
+  late MapboxMapController mapController;
   Symbol? symbol;
 
-  _onMapCreated(MapboxMapController controller) async {
+  Future<void> moveCamera(LatLng latlng, double zoom,
+      {double bearing = 0.0, double tilt = 0.0}) async {
+    await mapController.animateCamera(
+      CameraUpdate.newCameraPosition(
+        CameraPosition(
+          bearing: bearing,
+          target: LatLng(latlng.latitude, latlng.longitude),
+          tilt: tilt,
+          zoom: zoom,
+        ),
+      ),
+    );
+  }
+
+  Future<void> addMarker(LatLng latlng) async {
+    if (symbol != null) {
+      await mapController.removeSymbol(symbol!);
+    }
+    symbol = await mapController.addSymbol(SymbolOptions(
+      geometry: latlng,
+      iconImage: "assets/images/map_mark.png",
+      iconSize: 0.2,
+    ));
+  }
+
+  _onMapCreated(MapboxMapController controller) {
     mapController = controller;
   }
 
@@ -36,32 +61,19 @@ class _LocationPickerDialogState extends State<LocationPickerDialog> {
         styleString: 'mapbox://styles/walkerhsu/clmx0qvh1023701r940xsdpnb',
         accessToken: dotenv.get('MAPBOX_ACCESS_TOKEN'),
         onMapCreated: _onMapCreated,
+        onStyleLoadedCallback: () {
+          addMarker(LatLng(widget.destLat, widget.destLng));
+        },
         myLocationEnabled: true,
         trackCameraPosition: true,
         initialCameraPosition: CameraPosition(
           target: LatLng(widget.destLat, widget.destLng),
-          zoom: 13.0,
+          zoom: 15.0,
         ),
         onMapClick: (_, latlng) async {
           widget.setLatLng(latlng);
-          if (symbol != null) {
-            await mapController?.removeSymbol(symbol!);
-          }
-          symbol = await mapController?.addSymbol(SymbolOptions(
-            geometry: LatLng(latlng.latitude, latlng.longitude),
-            iconImage: "assets/images/map_mark.png",
-            iconSize: 0.2,
-          ));
-          await mapController?.animateCamera(
-            CameraUpdate.newCameraPosition(
-              CameraPosition(
-                bearing: 0.0,
-                target: LatLng(latlng.latitude, latlng.longitude),
-                tilt: 20.0,
-                zoom: 15.0,
-              ),
-            ),
-          );
+          addMarker(latlng);
+          moveCamera(latlng, 18.0, tilt: 20.0);
         },
       ),
     );

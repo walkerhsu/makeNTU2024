@@ -1,10 +1,10 @@
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:mapbox_search/mapbox_search.dart';
 
 import 'location_picker.dart';
+import '../my_location.dart';
 
 class DestinationField extends StatefulWidget {
   const DestinationField({
@@ -33,8 +33,8 @@ class _DestinationFieldState extends State<DestinationField> {
   bool get _showErrorBelowField => _hasValidationError;
 
   List<Map<String, dynamic>> filteredLocations = [];
-  double destLat = 25.034078069796244;
-  double destLng = 121.56453889999999;
+  late double destLat;
+  late double destLng;
 
   String? Function(String?)? get validator => (value) {
         if (value == null || value.isEmpty) {
@@ -121,6 +121,15 @@ class _DestinationFieldState extends State<DestinationField> {
     setState(() {
       destLat = latlng.latitude;
       destLng = latlng.longitude;
+    });
+  }
+
+  @override
+  initState() {
+    super.initState();
+    MyLocation.handleCurrentPosition().then((latlng) => {
+      destLat = latlng.latitude,
+      destLng = latlng.longitude,
     });
   }
 
@@ -262,8 +271,10 @@ class _DestinationFieldState extends State<DestinationField> {
                     _controller.text = filteredLocations[index]["text"]!;
                     searchPlaces(filteredLocations[index]["text"]!);
                     if (filteredLocations[index]["coordinates"] != "") {
-                      log((filteredLocations[index]["coordinates"].split(", ")[0] as String));
-                      log((filteredLocations[index]["coordinates"].split(", ")[1] as String));
+                      log((filteredLocations[index]["coordinates"]
+                          .split(", ")[0] as String));
+                      log((filteredLocations[index]["coordinates"]
+                          .split(", ")[1] as String));
                       setLatLng(LatLng(
                         double.parse((filteredLocations[index]["coordinates"]
                             .split(", ")[0] as String)),
