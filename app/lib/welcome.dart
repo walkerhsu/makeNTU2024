@@ -36,7 +36,7 @@ class WelcomePage extends StatelessWidget {
                 width: 300,
                 child: ElevatedButton(
                     onPressed: () {
-                      Navigator.pushNamed(context, '/game_settings');
+                      Navigator.pushNamed(context, '/game/settings');
                     },
                     style: ButtonStyle(
                         backgroundColor:
@@ -59,12 +59,13 @@ class WelcomePage extends StatelessWidget {
                 width: 300,
                 child: ElevatedButton(
                     onPressed: () {
+                      // Navigator.pushNamed(context, '/game/settings');
                       QuickAlert.show(
-                        context: context,
-                        type: QuickAlertType.info,
-                        text: 'Programmer: karamihossein.ai@gmail.com',
-                        confirmBtnColor: Colors.red,
-                      );
+                          context: context,
+                          title: "Coming Soon",
+                          text: "This feature is coming soon",
+                          type: QuickAlertType.error
+                          );
                     },
                     style: ButtonStyle(
                         backgroundColor:
@@ -73,7 +74,7 @@ class WelcomePage extends StatelessWidget {
                             RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(25)))),
                     child: const Text(
-                      "Me",
+                      "Log in ??",
                       style: TextStyle(
                           color: Colors.white,
                           fontSize: 20,
