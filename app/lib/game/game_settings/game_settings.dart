@@ -94,8 +94,8 @@ class _GameSettingsPageState extends State<GameSettingsPage> {
               onPressed: () async {
                 if (_formKey.currentState!.validate()) {
                   _formKey.currentState!.save();
-                } else {
-                  print("in");
+                } 
+                else {
                   return;
                 }
                 bool confirm = false;

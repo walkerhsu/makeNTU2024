@@ -1,10 +1,30 @@
 import 'package:flutter/material.dart';
-import 'package:rpg_game/game/Components/card_text.dart';
+import 'package:flutter_redux/flutter_redux.dart';
+import 'package:redux/redux.dart';
+import 'package:rpg_game/game/Components/loading.dart';
+import 'package:rpg_game/game/Components/progress_bar.dart';
+import 'package:rpg_game/game/game_main/story.dart';
+import 'package:rpg_game/game/game_main/ttsState/state.dart';
+import 'package:rpg_game/game/game_main/ttsState/store.dart';
+import 'package:rpg_game/game/game_main/ttsState/view_model.dart';
+import 'package:rpg_game/game/generate_story.dart';
 
 class GameMain extends StatefulWidget {
+  const GameMain({
+    super.key,
+    required this.destination,
+    required this.gameType,
+    required this.dstLat,
+    required this.dstLng,
+    required this.story,
+    required this.options,
+  });
+  final String destination;
+  final String gameType;
+  final double dstLat;
+  final double dstLng;
   final String story;
   final List<String> options;
-  const GameMain({super.key, required this.story, required this.options});
 
   @override
   State<GameMain> createState() => _GameMainState();
@@ -13,80 +33,77 @@ class GameMain extends StatefulWidget {
 class _GameMainState extends State<GameMain> {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-                color: Colors.white, borderRadius: BorderRadius.circular(15)),
-            width: 400,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                MyCardText(
-                  text: widget.story,
-                  maxLines: 50,
+    return StoreProvider<AppState>(
+        store: store,
+        child: StoreConnector<AppState, ViewModel>(
+          converter: (Store<AppState> store) {
+            return ViewModel.create(store);
+          },
+          builder: (BuildContext context, ViewModel viewModel) {
+            return Scaffold(
+              appBar: AppBar(
+                title: const Text('Game'),
+                leading: IconButton(
+                  icon: const Icon(Icons.home),
+                  onPressed: () {
+                    Navigator.popUntil(context, (route) => route.isFirst);
+                  },
                 ),
-                const SizedBox(
-                  height: 50,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    InkWell(
-                        onTap: () {},
-                        child: MyCardText(
-                          width: 130,
-                          text: widget.options[0],
-                          textAlign: TextAlign.center,
-                          maxLines: 2,
-                          cardColor: Colors.red,
-                        )),
-                    InkWell(
-                        onTap: () {},
-                        child: MyCardText(
-                          width: 130,
-                          text: widget.options[1],
-                          textAlign: TextAlign.center,
-                          maxLines: 2,
-                          cardColor: Colors.red,
-                        )),
-                  ],
-                ),
-                const SizedBox(
-                  height: 30,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    InkWell(
-                        onTap: () {},
-                        child: MyCardText(
-                          width: 130,
-                          text: widget.options[2],
-                          textAlign: TextAlign.center,
-                          maxLines: 2,
-                          cardColor: Colors.red,
-                        )),
-                    InkWell(
-                        onTap: () {},
-                        child: MyCardText(
-                          width: 130,
-                          text: widget.options[3],
-                          textAlign: TextAlign.center,
-                          maxLines: 2,
-                          cardColor: Colors.red,
-                        )),
-                  ],
-                ),
-              ],
-            ),
-          )
-        ],
-      ),
-    );
+                actions: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                    child: InkWell(
+                        onTap: () {
+                          print("ttsState : ${viewModel.ttsState.toString()}");
+                          if (viewModel.ttsState == TtsState.stopped) {
+                            viewModel.speak();
+                            setState(() {});
+                          } else if (viewModel.ttsState == TtsState.playing) {
+                            viewModel.pause();
+                            setState(() {});
+                          } else if (viewModel.ttsState == TtsState.paused) {
+                            viewModel.speak();
+                            setState(() {});
+                          }
+                        },
+                        child: viewModel.ttsState == TtsState.playing
+                            ? Image.asset(
+                                'assets/images/pause.png',
+                                width: 25,
+                              )
+                            : Image.asset(
+                                'assets/images/sound.png',
+                                width: 25,
+                              )),
+                  ),
+                ],
+              ),
+              body: FutureBuilder(
+                future: getGPTResponse(widget.destination, widget.gameType),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const MyLoading();
+                  } else {
+                    return Column(
+                      children: [
+                        ProgressBar(
+                          dstLat: widget.dstLat,
+                          dstLng: widget.dstLng,
+                          width: MediaQuery.of(context).size.width * 0.8,
+                          height: 25,
+                          color: Colors.blue,
+                          backgroundColor: Colors.black,
+                        ),
+                        StoryBody(
+                            story: snapshot.data!["story"] as String,
+                            options: snapshot.data!["options"] as List<String>),
+                      ],
+                    );
+                  }
+                },
+              ),
+            );
+          },
+        ));
   }
 }

@@ -72,7 +72,7 @@ class _ProgressBarState extends State<ProgressBar>
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        const SizedBox(height: 55),
+        const SizedBox(height: 20),
         Center(
             child: Container(
           width: widget.width + iconWidth,
