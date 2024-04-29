@@ -87,7 +87,6 @@ class _GameModeMenuState extends State<GameModeMenu> {
             children: [
               textHint(context),
               textInput(context),
-              if (_showErrorBelowField) errorText(context),
               filteredResults(context),
             ],
           ),
@@ -101,7 +100,6 @@ class _GameModeMenuState extends State<GameModeMenu> {
           children: [
             textHint(context),
             textInput(context),
-            if (_showErrorBelowField) errorText(context),
           ],
         ),
       );
@@ -145,19 +143,9 @@ class _GameModeMenuState extends State<GameModeMenu> {
             _validationError = error;
           });
         });
-        return null;
+        return error;
       },
       textInputAction: TextInputAction.next,
-    );
-  }
-
-  Widget errorText(BuildContext context) {
-    return Text(
-      _validationError!,
-      style: TextStyle(
-        fontSize: 12,
-        color: _showErrorBelowField ? Colors.red : Colors.black,
-      ),
     );
   }
 

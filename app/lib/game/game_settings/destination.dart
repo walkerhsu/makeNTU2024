@@ -144,7 +144,6 @@ class _DestinationFieldState extends State<DestinationField> {
             children: [
               textHint(context),
               textInput(context),
-              if (_showErrorBelowField) errorText(context),
               filteredResults(context),
             ],
           ),
@@ -158,7 +157,6 @@ class _DestinationFieldState extends State<DestinationField> {
           children: [
             textHint(context),
             textInput(context),
-            if (_showErrorBelowField) errorText(context),
           ],
         ),
       );
@@ -237,19 +235,9 @@ class _DestinationFieldState extends State<DestinationField> {
             _validationError = error;
           });
         });
-        return null;
+        return error;
       },
       textInputAction: TextInputAction.next,
-    );
-  }
-
-  Widget errorText(BuildContext context) {
-    return Text(
-      _validationError!,
-      style: TextStyle(
-        fontSize: 12,
-        color: _showErrorBelowField ? Colors.red : Colors.black,
-      ),
     );
   }
 
