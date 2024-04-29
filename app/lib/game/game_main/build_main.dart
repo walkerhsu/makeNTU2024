@@ -5,10 +5,15 @@ import 'package:rpg_game/game/Components/progress_bar.dart';
 import 'package:rpg_game/game/game_main/main.dart';
 import 'package:rpg_game/game/generate_story.dart';
 
-class GameMainBuilder extends StatelessWidget {
+class GameMainBuilder extends StatefulWidget {
   // ignore: prefer_const_constructors_in_immutables
-  GameMainBuilder({super.key});
+  const GameMainBuilder({super.key});
 
+  @override
+  State<GameMainBuilder> createState() => _GameMainBuilderState();
+}
+
+class _GameMainBuilderState extends State<GameMainBuilder> {
   late final String _destination;
   late final String _gameType;
   late final double? _destLat;
@@ -23,9 +28,15 @@ class GameMainBuilder extends StatelessWidget {
     _destLat = (arguments['destLatLng'] as LatLng?)?.latitude;
     _destLng = (arguments['destLatLng'] as LatLng?)?.longitude;
     return Scaffold(
-        // appBar: AppBar(
-        //   title: const Text('Game'),
-        // ),
+        appBar: AppBar(
+          title: const Text('Game'),
+          leading: IconButton(
+            icon: const Icon(Icons.home),
+            onPressed: () {
+              Navigator.popUntil(context, (route) => route.isFirst);
+            },
+          ),
+        ),
         body: FutureBuilder(
             future: getGPTResponse(_destination, _gameType),
             builder: (context, snapshot) {
