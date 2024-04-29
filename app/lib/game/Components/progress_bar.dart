@@ -29,18 +29,21 @@ class ProgressBar extends StatefulWidget {
   State<ProgressBar> createState() => _ProgressBarState();
 }
 
-class _ProgressBarState extends State<ProgressBar> {
+class _ProgressBarState extends State<ProgressBar>
+    with TickerProviderStateMixin {
   late final Timer _timer;
   double total = 0.1;
-  double current = 0;
+  double current = 0.1;
+  double iconWidth = 30;
+  late final AnimationController _controller = AnimationController(
+    duration: const Duration(milliseconds: 1000),
+    vsync: this,
+  )..repeat(reverse: true);
   @override
   void initState() {
     super.initState();
-    _timer = Timer.periodic(const Duration(seconds: 5), (Timer timer) {
+    _timer = Timer.periodic(const Duration(seconds: 1), (Timer timer) {
       getEstimatedTime().then((value) {
-        print(value);
-        print(total);
-        print(current);
         if (total == 0.1) {
           setState(() {
             total = value;
@@ -59,41 +62,86 @@ class _ProgressBarState extends State<ProgressBar> {
   @override
   void dispose() {
     _timer.cancel();
+    _controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Center(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        const SizedBox(height: 55),
+        Center(
             child: Container(
-              width: widget.width,
-              height: widget.height,
-              decoration: BoxDecoration(
-                color: widget.backgroundColor,
-                borderRadius: BorderRadius.circular(5),
-              ),
-              child: Stack(
-                children: [
-                  Container(
-                    width: widget.width *
-                        ((total - current) / total).clamp(0, total),
-                    height: widget.height,
-                    decoration: BoxDecoration(
-                      color: widget.color,
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                  ),
-                ],
+          width: widget.width + iconWidth,
+          height: iconWidth,
+          decoration: BoxDecoration(
+            // color: widget.backgroundColor,
+            borderRadius: BorderRadius.circular(5),
+          ),
+          child: Stack(children: [
+            Positioned(
+              bottom: 0,
+              left: 0,
+              child: Transform.rotate(
+                angle: -90 * 3.14159 / 180,
+                child: Image.asset(
+                  'assets/images/start-line.png',
+                  width: iconWidth,
+                  height: iconWidth,
+                ),
               ),
             ),
+            Positioned(
+              bottom: 0,
+              right: 0,
+              child: Image.asset(
+                'assets/images/flag.png',
+                width: iconWidth,
+                height: iconWidth,
+              ),
+            ),
+            Positioned(
+              bottom: 0,
+              left: widget.width * ((total - current) / total).clamp(0, 1),
+              child: RotationTransition(
+                turns: Tween(begin: -0.05, end: 0.05).animate(_controller),
+                child: Image.asset(
+                  'assets/images/car.png',
+                  width: iconWidth,
+                  height: iconWidth,
+                ),
+              ),
+            ),
+          ]),
+        )),
+        const SizedBox(height: 5),
+        Center(
+          child: Container(
+            width: widget.width,
+            height: widget.height,
+            decoration: BoxDecoration(
+              color: widget.backgroundColor,
+              borderRadius: BorderRadius.circular(5),
+            ),
+            child: Stack(
+              children: [
+                Container(
+                  width: widget.width * ((total - current) / total).clamp(0, 1),
+                  height: widget.height,
+                  decoration: BoxDecoration(
+                    color: widget.color,
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                ),
+              ],
+            ),
           ),
-          Text("${(((total - current) / total).clamp(0, total) * 100).toStringAsFixed(0)} %")
+        ),
         ],
-      );
+    );
   }
 
   Future<double> getEstimatedTime() async {
@@ -105,6 +153,11 @@ class _ProgressBarState extends State<ProgressBar> {
     final accessToken = dotenv.env['MAPBOX_ACCESS_TOKEN'];
     final url =
         'https://api.mapbox.com/directions/v5/mapbox/driving/$curLng,$curLat;$dstLng,$dstLat?steps=true&access_token=$accessToken';
+    // TODO: Remove this line
+    bool test = true;
+    if (test) {
+      return 100;
+    }
     final response = await http.get(Uri.parse(url));
 
     if (response.statusCode == 200) {

@@ -6,7 +6,7 @@ import 'quiz.dart';
 import 'quiz_result.dart';
 import 'welcome.dart';
 import 'game/game_settings/game_settings.dart';
-import 'game/game_main/main.dart';
+import 'game/game_main/build_main.dart';
 import 'theme/theme_data.dart';
 
 Future main() async {
@@ -31,7 +31,7 @@ class MyApp extends StatelessWidget {
         '/quiz': (context) => const QuizPage(),
         '/result': (context) => const ResultPage(),
         '/game/settings': (context) => const GameSettingsPage(),
-        '/game/main': (context) => GameMainPage(),
+        '/game/main': (context) => GameMainBuilder(),
       },
     );
   }
