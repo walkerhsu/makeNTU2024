@@ -1,6 +1,8 @@
+import time
 import os
 from datetime import datetime
 import json
+import sys
 import cv2
 import numpy as np
 import mediapipe as mp
@@ -48,42 +50,92 @@ def put_text(frame, text, x, y, font_size=1, color=(255, 255, 255)):
                        font_scale, color, font_thickness, cv2.LINE_AA)
 
 
+def put_multiple_text(frame, text_list, x, y, font_size=1, color=(255, 255, 255)):
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    font_scale = 1
+    font_thickness = 2
+    for i, text in enumerate(text_list):
+        text_size, _ = cv2.getTextSize(
+            text, font, font_scale, font_thickness)
+        text_height = text_size[1] + 20
+        half_lines = len(text_list)/2
+        text_x = x - text_size[0] // 2
+        text_y = y - text_size[1] // 2 + (i-half_lines)*text_height
+        frame = cv2.putText(frame, text, (int(text_x), int(text_y)), font,
+                            font_scale, color, font_thickness, cv2.LINE_AA)
+    return frame
+
+
 cv2.namedWindow('main', cv2.WINDOW_NORMAL)
 screen = np.zeros((HEIGHT, WIDTH, 3), np.uint8)
-starting_screen = put_text(screen, 'Press Q to start',
-                           int(WIDTH//2), int(HEIGHT//2))
+starting_screen = put_multiple_text(screen, [
+    'Instructions',
+    '1. Maximize your screen',
+    '2. Press q and Start drawing path with mouse',
+    '3. Press q to start following the path with your finger',
+], int(WIDTH/2), int(HEIGHT/2))
 
 
 while True:
     cv2.imshow('main', starting_screen)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
+    if cv2.getWindowProperty('main', cv2.WND_PROP_VISIBLE) < 1:
+        sys.exit(0)
+
+path = []
+
+
+def draw_path(event, x, y, flags, param):
+    global screen
+    global path
+    if event == cv2.EVENT_LBUTTONDOWN:
+        cv2.circle(screen, (x, y), 5, (0, 0, 255), -1)
+        print(x, y)
+        path.append((x, y))
+    elif event == cv2.EVENT_MOUSEMOVE and flags == cv2.EVENT_FLAG_LBUTTON:
+        cv2.circle(screen, (x, y), 5, (0, 0, 255), -1)
+        print(x, y)
+        path.append((x, y))
+
+
+# draw path with mouse
+screen = np.zeros((HEIGHT, WIDTH, 3), np.uint8)
+cv2.imshow('main', screen)
+cv2.setMouseCallback('main', draw_path)
+while True:
+    cv2.imshow('main', screen)
+    screen[:40, :400] = 0
+    cv2.putText(screen, f'Path length: {len(path)}', (10, 30),
+                cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+    if cv2.getWindowProperty('main', cv2.WND_PROP_VISIBLE) < 1:
+        sys.exit(0)
+cv2.setMouseCallback('main', lambda *args: None)
 
 circle_radius = 100
-circle_pos = (circle_radius, circle_radius)
-dir = (1, 0)
-circle_speed = 5
+circle_pos = path[0]
+circle_index = 0
+
+# count down
+for i in range(3, 0, -1):
+    screen = np.zeros((HEIGHT, WIDTH, 3), np.uint8)
+    screen = cv2.circle(screen, circle_pos, circle_radius, (255, 0, 0), -1)
+    screen = put_text(screen, str(i), WIDTH//2, HEIGHT//2, font_size=10)
+    cv2.imshow('main', screen)
+    time.sleep(1)
 
 
 def update_circle_pos():
     global circle_pos
-    global dir
-    circle_pos = (circle_pos[0] + circle_speed * dir[0],
-                  circle_pos[1] + circle_speed * dir[1])
-    if circle_pos[0] + circle_radius > WIDTH:
-        circle_pos = (WIDTH - circle_radius, circle_pos[1])
-        dir = (0, 1)
-    elif circle_pos[0] - circle_radius < 0:
-        circle_pos = (circle_radius, circle_pos[1])
-        dir = (0, 1)
-    elif (circle_pos[1]-circle_radius) % (2*circle_radius) == 0 and dir == (0, 1):
-        if circle_pos[0] == WIDTH - circle_radius:
-            dir = (-1, 0)
-        else:
-            dir = (1, 0)
-
-    if circle_pos[1] + circle_radius > HEIGHT:
+    global circle_index
+    global circle_radius
+    global path
+    circle_index += 1
+    if circle_index >= len(path):
         return False
+    circle_pos = path[circle_index]
     return True
 
 
