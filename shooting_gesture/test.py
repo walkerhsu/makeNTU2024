@@ -16,7 +16,7 @@ detector = vision.HandLandmarker.create_from_options(options)
 cap = cv2.VideoCapture(0)
 CAM_WIDTH = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
 CAM_HEIGHT = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-predictor = Predictor(10)
+predictor = Predictor()
 
 
 def get_landmarks(frame):
@@ -45,15 +45,19 @@ while running:
     if not ret:
         continue
 
+    screen = np.zeros((HEIGHT, WIDTH, 3), np.uint8)
     landmark_list = get_landmarks(frame)
-    if landmark_list:
-        circle_radius = 100
-        circle_pos = predictor.predict(landmark_list)
+    circle_radius = 100
+    gesture, pos = predictor.predict(landmark_list)
+    print(gesture, pos)
+    if gesture == 'aim' and pos is not None:
+        circle_pos = pos
         circle_pos = (int(circle_pos[0]*WIDTH), int(circle_pos[1]*HEIGHT))
-
-        screen = np.zeros((HEIGHT, WIDTH, 3), np.uint8)
         cv2.circle(screen, circle_pos, circle_radius, (255, 0, 0), -1)
-        cv2.imshow('main', screen)
+
+    screen = cv2.putText(screen, gesture, (10, 150),
+                         cv2.FONT_HERSHEY_SIMPLEX, 5, (0, 0, 255), 2, cv2.LINE_AA)
+    cv2.imshow('main', screen)
 
     if SELF_VIEW:
         for i, landmark in enumerate(landmark_list):
@@ -68,6 +72,10 @@ while running:
 
     # Exit the loop if 'q' is pressed or Exit windows is pressed.
     if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+    if cv2.getWindowProperty('main', cv2.WND_PROP_VISIBLE) < 1:
+        break
+    if cv2.getWindowProperty('Hand Landmarks', cv2.WND_PROP_VISIBLE) < 1:
         break
 
 cap.release()
