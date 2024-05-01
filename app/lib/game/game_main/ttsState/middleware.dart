@@ -14,6 +14,7 @@ void ttsMiddleware(
     await flutterTts.setPitch(store.state.pitch);
     await flutterTts.speak(action.text);
     store.dispatch(SetStartAction());
+
   } else if (action is StopSpeakAction) {
     // Stop the text-to-speech operation
     var result = await flutterTts.stop();
