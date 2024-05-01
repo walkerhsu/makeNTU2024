@@ -20,6 +20,8 @@ AppState setTtsCallbackReducer(AppState state, dynamic action) {
 AppState setSpeakReducer(AppState state, dynamic action) {
   if (action is SetSpeechParams) {
     return state.copyWith(volume:action.volume, pitch:action.pitch, rate:action.rate);
+  } else if (action is SetVoiceTextAction) {
+    return state.copyWith(voiceText:action.text);
   } return state;
 }
 

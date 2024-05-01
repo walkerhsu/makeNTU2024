@@ -32,19 +32,19 @@ class _GameMainBuilderState extends State<GameMainBuilder> {
     _destLat = (arguments['destLatLng'] as LatLng?)?.latitude;
     _destLng = (arguments['destLatLng'] as LatLng?)?.longitude;
     return FutureBuilder(
-              future: getGPTResponse(_destination, _gameType),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const MyLoading();
-                } else {
-                  return GameMain(
-                    destination: _destination,
-                    gameType: _gameType,
-                    dstLat: _destLat!,
-                    dstLng: _destLng!,
-                    story: snapshot.data!["story"] as String,
-                    options: snapshot.data!["options"] as List<String>
-                  );
-  }});
+        future: getGPTResponse(_destination, _gameType),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const MyLoading();
+          } else {
+            return GameMain(
+                destination: _destination,
+                gameType: _gameType,
+                dstLat: _destLat!,
+                dstLng: _destLng!,
+                story: snapshot.data!["story"] as String,
+                options: snapshot.data!["options"] as List<String>);
+          }
+        });
   }
 }

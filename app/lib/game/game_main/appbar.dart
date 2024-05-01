@@ -9,7 +9,7 @@ class GameAppBar extends StatefulWidget {
   State<GameAppBar> createState() => _GameAppBarState();
 }
 
-class _GameAppBarState extends State<GameAppBar> implements PreferredSizeWidget {
+class _GameAppBarState extends State<GameAppBar> {
   @override
   Widget build(BuildContext context) {
     return AppBar(
@@ -28,13 +28,10 @@ class _GameAppBarState extends State<GameAppBar> implements PreferredSizeWidget 
                 print(widget.viewModel.ttsState);
                 if (widget.viewModel.ttsState == TtsState.stopped) {
                   widget.viewModel.speak();
-                  setState(() {});
                 } else if (widget.viewModel.ttsState == TtsState.playing) {
                   widget.viewModel.pause();
-                  setState(() {});
                 } else if (widget.viewModel.ttsState == TtsState.paused) {
                   widget.viewModel.speak();
-                  setState(() {});
                 }
               },
               child: widget.viewModel.ttsState == TtsState.playing

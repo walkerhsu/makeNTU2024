@@ -22,3 +22,7 @@ class SpeakTextAction {
 }
 class StopSpeakAction {}
 class PauseSpeakAction {}
+class SetVoiceTextAction {
+  String text;
+  SetVoiceTextAction(this.text);
+}
