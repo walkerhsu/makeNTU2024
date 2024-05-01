@@ -22,7 +22,7 @@ class ViewModel {
       ttsState: store.state.ttsState,
       text: store.state.voiceText,
       speak: () {
-        print("speaking: ${store.state.voiceText}");
+        // print("speaking: ${store.state.voiceText}");
         store.dispatch(SpeakTextAction(store.state.voiceText));
       },
       stop: () {

@@ -44,6 +44,7 @@ class AppState {
     Future.delayed(Duration.zero, () {
       store.dispatch(SetAwaitOptionsAction(true));
     });
+    
     if (isAndroid) {
       _getDefaultEngine();
       _getDefaultVoice();

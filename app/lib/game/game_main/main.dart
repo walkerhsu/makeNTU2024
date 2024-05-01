@@ -57,7 +57,7 @@ class _GameMainState extends State<GameMain> {
         }, builder: (BuildContext context, ViewModel viewModel) {
           store.dispatch(
               SetVoiceTextAction(generateText(widget.story, widget.options)));
-          store.dispatch(SetSpeechParams(0.5, 0.5, 0.6));
+          store.dispatch(SetSpeechParams(0.5, 1.0, 0.5));
           return Scaffold(
             appBar: AppBar(
               title: const Text('Game'),
