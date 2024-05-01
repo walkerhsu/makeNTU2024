@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
+import 'package:quickalert/quickalert.dart';
 
 import 'destination.dart';
 import 'game_mode.dart';
@@ -19,7 +20,7 @@ class _GameSettingsPageState extends State<GameSettingsPage> {
   String? _destination;
   LatLng? _destLatLng;
   String? _gameType;
-  
+
   bool _showDestinationFilters = false;
   bool _showGameTypeFilters = false;
 
@@ -67,8 +68,7 @@ class _GameSettingsPageState extends State<GameSettingsPage> {
                   setShowGameTypeFilters: setShowGameTypeFilters,
                   setShowDestinationFilters: setShowDestinationFilters,
                   showFilters: _showDestinationFilters,
-                  textFormKey: _textFormKeyDest
-                ),
+                  textFormKey: _textFormKeyDest),
               const SizedBox(
                 height: 20,
               ),
@@ -91,10 +91,35 @@ class _GameSettingsPageState extends State<GameSettingsPage> {
           width: MediaQuery.of(context).size.width * 0.15,
           height: MediaQuery.of(context).size.width * 0.15,
           child: FloatingActionButton(
-              onPressed: () {
+              onPressed: () async {
                 if (_formKey.currentState!.validate()) {
                   _formKey.currentState!.save();
+                } 
+                else {
+                  return;
                 }
+                bool confirm = false;
+                await QuickAlert.show(
+                  context: context,
+                  text: "Are you sure you picked the right settings?",
+                  // confirmBtnText: 'Yes',
+                  cancelBtnText: 'No',
+                  confirmBtnColor: Colors.green,
+                  cancelBtnTextStyle: const TextStyle(
+                      color: Colors.red,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold),
+                  type: QuickAlertType.confirm,
+                  onConfirmBtnTap: () {
+                    confirm = true;
+                    Navigator.pop(context);
+                  },
+                );
+                if (!mounted || !confirm) return;
+
+                // ignore: use_build_context_synchronously
+                Navigator.popUntil(context, (route) => route.isFirst);
+                // ignore: use_build_context_synchronously
                 Navigator.pushNamed(context, '/game/main', arguments: {
                   'destination': _destination,
                   'destLatLng': _destLatLng,

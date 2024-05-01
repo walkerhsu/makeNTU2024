@@ -5,16 +5,9 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 
-void main() => runApp(MyApp());
-
-class MyApp extends StatefulWidget {
-  @override
-  _MyAppState createState() => _MyAppState();
-}
-
 enum TtsState { playing, stopped, paused, continued }
 
-class _MyAppState extends State<MyApp> {
+class TTS {
   late FlutterTts flutterTts;
   String? language;
   String? engine;
@@ -38,12 +31,6 @@ class _MyAppState extends State<MyApp> {
   bool get isWindows => !kIsWeb && Platform.isWindows;
   bool get isWeb => kIsWeb;
 
-  @override
-  initState() {
-    super.initState();
-    initTts();
-  }
-
   initTts() {
     flutterTts = FlutterTts();
 
@@ -55,45 +42,33 @@ class _MyAppState extends State<MyApp> {
     }
 
     flutterTts.setStartHandler(() {
-      setState(() {
-        print("Playing");
-        ttsState = TtsState.playing;
-      });
+      print("Playing");
+      ttsState = TtsState.playing;
     });
 
     flutterTts.setCompletionHandler(() {
-      setState(() {
-        print("Complete");
-        ttsState = TtsState.stopped;
-      });
+      print("Complete");
+      ttsState = TtsState.stopped;
     });
 
     flutterTts.setCancelHandler(() {
-      setState(() {
-        print("Cancel");
-        ttsState = TtsState.stopped;
-      });
+      print("Cancel");
+      ttsState = TtsState.stopped;
     });
 
     flutterTts.setPauseHandler(() {
-      setState(() {
-        print("Paused");
-        ttsState = TtsState.paused;
-      });
+      print("Paused");
+      ttsState = TtsState.paused;
     });
 
     flutterTts.setContinueHandler(() {
-      setState(() {
-        print("Continued");
-        ttsState = TtsState.continued;
-      });
+      print("Continued");
+      ttsState = TtsState.continued;
     });
 
     flutterTts.setErrorHandler((msg) {
-      setState(() {
-        print("error: $msg");
-        ttsState = TtsState.stopped;
-      });
+      print("error: $msg");
+      ttsState = TtsState.stopped;
     });
   }
 
@@ -133,7 +108,7 @@ class _MyAppState extends State<MyApp> {
 
   Future _stop() async {
     var result = await flutterTts.stop();
-    if (result == 1) setState(() => ttsState = TtsState.stopped);
+    if (result == 1) ttsState = TtsState.stopped;
   }
 
   Future _pause() async {
