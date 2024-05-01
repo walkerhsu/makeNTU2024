@@ -11,7 +11,7 @@ class ViewModel {
 
   ViewModel({
     this.ttsState = TtsState.stopped,
-    this.text = "This is a book",
+    this.text = "",
     required this.speak,
     required this.stop,
     required this.pause,

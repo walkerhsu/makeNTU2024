@@ -13,7 +13,7 @@ class TTS {
   String? engine;
   double volume = 0.1;
   double pitch = 1.0;
-  double rate = 0.5;
+  double rate = 1.0;
   bool isCurrentLanguageInstalled = false;
 
   String? _newVoiceText;

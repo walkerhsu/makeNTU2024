@@ -42,7 +42,7 @@ class _GameMainState extends State<GameMain> {
       4: "four",
     };
     for (int i = 1; i <= options.length; i++) {
-      text += "Option ${num2words[i]}: ${options[i]}. ";
+      text += "Option ${num2words[i]}: ${options[i - 1]}. ";
     }
     return text;
   }
@@ -57,12 +57,14 @@ class _GameMainState extends State<GameMain> {
         }, builder: (BuildContext context, ViewModel viewModel) {
           store.dispatch(
               SetVoiceTextAction(generateText(widget.story, widget.options)));
+          store.dispatch(SetSpeechParams(0.5, 0.5, 0.6));
           return Scaffold(
             appBar: AppBar(
               title: const Text('Game'),
               leading: IconButton(
                 icon: const Icon(Icons.home),
                 onPressed: () {
+                  store.dispatch(viewModel.stop());
                   Navigator.popUntil(context, (route) => route.isFirst);
                 },
               ),
@@ -74,13 +76,13 @@ class _GameMainState extends State<GameMain> {
                         print("ttsState : ${viewModel.ttsState.toString()}");
                         if (viewModel.ttsState == TtsState.stopped) {
                           viewModel.speak();
-                        } else if (viewModel.ttsState == TtsState.playing) {
+                        } else if (viewModel.ttsState == TtsState.playing || viewModel.ttsState == TtsState.continued) {
                           viewModel.pause();
                         } else if (viewModel.ttsState == TtsState.paused) {
                           viewModel.speak();
                         }
                       },
-                      child: viewModel.ttsState == TtsState.playing
+                      child: viewModel.ttsState == TtsState.playing || viewModel.ttsState == TtsState.continued
                           ? Image.asset(
                               'assets/images/pause.png',
                               width: 25,
