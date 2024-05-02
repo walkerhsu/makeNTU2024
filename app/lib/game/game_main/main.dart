@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:redux/redux.dart';
-import 'package:rpg_game/game/Components/loading.dart';
 import 'package:rpg_game/game/Components/progress_bar.dart';
 import 'package:rpg_game/game/game_main/story.dart';
 import 'package:rpg_game/game/game_main/ttsState/actions.dart';
 import 'package:rpg_game/game/game_main/ttsState/state.dart';
 import 'package:rpg_game/game/game_main/ttsState/store.dart';
 import 'package:rpg_game/game/game_main/ttsState/view_model.dart';
-import 'package:rpg_game/game/generate_story.dart';
 
 class GameMain extends StatefulWidget {
   const GameMain({
@@ -25,24 +23,18 @@ class GameMain extends StatefulWidget {
   final double dstLat;
   final double dstLng;
   final String story;
-  final List<String> options;
+  final List<Map<String, dynamic>> options;
 
   @override
   State<GameMain> createState() => _GameMainState();
 }
 
 class _GameMainState extends State<GameMain> {
-  String generateText(String story, List<String> options) {
+  String generateText(String story, List<Map<String, dynamic>> options) {
     String text = story;
     text += " Now, please select an option from the following options! ";
-    Map<int, String> num2words = {
-      1: "one",
-      2: "two",
-      3: "three",
-      4: "four",
-    };
-    for (int i = 1; i <= options.length; i++) {
-      text += "Option ${num2words[i]}: ${options[i - 1]}. ";
+    for (int i = 0; i < options.length; i++) {
+      text += "Option ${options[i]["idx"]}: ${options[i]["option"]}. ";
     }
     return text;
   }

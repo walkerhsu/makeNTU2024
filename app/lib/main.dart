@@ -32,6 +32,7 @@ class MyApp extends StatelessWidget {
         '/result': (context) => const ResultPage(),
         '/game/settings': (context) => const GameSettingsPage(),
         '/game/main': (context) => const GameMainBuilder(),
+        '/game/wait_result': (context) => const QuizPage(),
       },
     );
   }

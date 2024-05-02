@@ -43,7 +43,7 @@ class _GameMainBuilderState extends State<GameMainBuilder> {
                 dstLat: _destLat!,
                 dstLng: _destLng!,
                 story: snapshot.data!["story"] as String,
-                options: snapshot.data!["options"] as List<String>);
+                options: snapshot.data!["options"] as List<Map<String, dynamic>>);
           }
         });
   }

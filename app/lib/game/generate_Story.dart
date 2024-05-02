@@ -29,11 +29,11 @@ Future<Map<String, dynamic>> getGPTResponse(
   if (test) {
     String story =
         "In the realm of Etheria, a land teeming with magic and mystery, a group of unlikely heroes embarks on an epic quest. Bound by fate, they seek the legendary Crystal of Eternity, said to hold the power to reshape reality itself. Along their journey, they face treacherous dungeons, cunning foes, and moral dilemmas that test their resolve. Each member of the party brings unique skills and backgrounds, from the stoic warrior wielding a mighty blade to the enigmatic sorcerer harnessing arcane forces. As they venture forth, they uncover dark secrets that threaten to unravel the very fabric of existence.";
-    List<String> options = [
-      "The Mysterious Cave",
-      "The Forbidden Temple",
-      "The Enchanted Forest",
-      "The Haunted Ruins"
+    List<Map<String, dynamic>> options = [
+      {"idx": 1, "option": "The Mysterious Cave"},
+      {"idx": 2, "option": "The Forbidden Temple"},
+      {"idx": 3, "option": "The Enchanted Forest"},
+      {"idx": 4, "option": "The Haunted Ruins"},
     ];
     Map<String, dynamic> data = {'story': story, 'options': options};
     return data; // Return the generated response
@@ -68,10 +68,30 @@ String generatePrompt(String destination, String gameType) {
   // TODO: SHOULD ASK THE MODEL TO RETURN WITH THE FOLLOWING STRUCTURE
   // {
   //    "story": ".....",
-  //    "options" : ["...", "...", "...", "..."] (4 options)
+  //    "options" : [
+  //       {"idx": 1, "option": "..."},
+  //       {"idx": 2, "option": "..."},
+  //       {"idx": 3, "option": "..."},
+  //       {"idx": 4, "option": "..."},
+  //    ]
   // }
   String prompt =
       "You are a RPG story designer. You have to design a story that begins at ,  and ends at $destination. The game mode is $gameType, so you should generate a story that is $gameType. At last, you have to give 4 choices to let the user choose. ";
 
   return prompt;
+}
+
+String idx2Str(int idx) {
+  switch (idx) {
+    case 1:
+      return "one";
+    case 2:
+      return "two";
+    case 3:
+      return "three";
+    case 4:
+      return "four";
+    default:
+      return "unknown";
+  }
 }
