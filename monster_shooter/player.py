@@ -21,11 +21,11 @@ class Player:
         self.ammo = max_ammo
         self.max_reload_time = max_reload_time
         self.reload_time = max_reload_time
-        self.aim_pic = pygame.image.load("aim.png")
-        self.shoot_sfx = pygame.mixer.Sound("shoot_sfx.mp3")
+        self.aim_pic = pygame.image.load("./pictures/aim.png")
+        self.shoot_sfx = pygame.mixer.Sound("./sound_effect/shoot_sfx.mp3")
         self.shoot_sfx.set_volume(0.3)
-        self.reload_sfx = pygame.mixer.Sound("reload_sfx.mp3")
-        self.damage_sfx = pygame.mixer.Sound("damage_sfx.mp3")
+        self.reload_sfx = pygame.mixer.Sound("./sound_effect/reload_sfx.mp3")
+        self.damage_sfx = pygame.mixer.Sound("./sound_effect/characterpain_sfx.mp3")
 
     def aim_display(self, screen, player_pos):
         screen.blit(self.aim_pic, (player_pos[0]-50, player_pos[1]-50))
