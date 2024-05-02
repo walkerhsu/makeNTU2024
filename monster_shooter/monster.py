@@ -7,7 +7,7 @@ def get_monster_info():
     max_health = 30
     strength = 10
     attack_time = 200
-    pic = pygame.image.load("monster.png")
+    pic = pygame.image.load("./pictures/monster.png")
     pos = (random.randint(0, SCREEN_WIDTH - pic.get_rect().size[0]), random.randint(0, SCREEN_HEIGHT - pic.get_rect().size[1]))
     speed = 3
     return name, max_health, strength, attack_time, pic, pos, speed
