@@ -35,15 +35,16 @@ class AppState {
 
   AppState({
     this.volume = 1.0,
-    this.pitch = 1.0,
-    this.rate = 0.5,
-    this.voiceText = "This is a book",
+    this.pitch = 0.5,
+    this.rate = 0.6,
+    this.voiceText = "",
     this.inputLength = 0,
     this.ttsState = TtsState.stopped,
   }) {
     Future.delayed(Duration.zero, () {
       store.dispatch(SetAwaitOptionsAction(true));
     });
+    
     if (isAndroid) {
       _getDefaultEngine();
       _getDefaultVoice();

@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:rpg_game/game/Components/card_text.dart';
+import 'package:rpg_game/game/game_main/ttsState/actions.dart';
+import 'package:rpg_game/game/game_main/ttsState/state.dart';
+import 'package:rpg_game/game/game_main/ttsState/store.dart';
+import 'package:rpg_game/game/generate_Story.dart';
 
 class StoryBody extends StatefulWidget {
   final String story;
-  final List<String> options;
+  final List<Map<String, dynamic>> options;
   const StoryBody({super.key, required this.story, required this.options});
 
   @override
@@ -11,6 +15,16 @@ class StoryBody extends StatefulWidget {
 }
 
 class _StoryBodyState extends State<StoryBody> {
+  late final List<Map<String, dynamic>> options1_2;
+  late final List<Map<String, dynamic>> options3_4;
+
+  @override
+  void initState() {
+    super.initState();
+    options1_2 = widget.options.sublist(0, 2);
+    options3_4 = widget.options.sublist(2, 4);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -33,60 +47,48 @@ class _StoryBodyState extends State<StoryBody> {
                 const SizedBox(
                   height: 50,
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    InkWell(
-                        onTap: () {},
-                        child: MyCardText(
-                          width: 130,
-                          text: widget.options[0],
-                          textAlign: TextAlign.center,
-                          maxLines: 2,
-                          cardColor: Colors.red,
-                        )),
-                    InkWell(
-                        onTap: () {},
-                        child: MyCardText(
-                          width: 130,
-                          text: widget.options[1],
-                          textAlign: TextAlign.center,
-                          maxLines: 2,
-                          cardColor: Colors.red,
-                        )),
-                  ],
-                ),
+                _buildOptionsRow(options1_2),
                 const SizedBox(
                   height: 30,
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    InkWell(
-                        onTap: () {},
-                        child: MyCardText(
-                          width: 130,
-                          text: widget.options[2],
-                          textAlign: TextAlign.center,
-                          maxLines: 2,
-                          cardColor: Colors.red,
-                        )),
-                    InkWell(
-                        onTap: () {},
-                        child: MyCardText(
-                          width: 130,
-                          text: widget.options[3],
-                          textAlign: TextAlign.center,
-                          maxLines: 2,
-                          cardColor: Colors.red,
-                        )),
-                  ],
-                ),
+                _buildOptionsRow(options3_4),
               ],
             ),
           )
         ],
       ),
+    );
+  }
+
+  Widget _buildOptionsRow(List<Map<String, dynamic>> options) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: options
+          .map((option) => InkWell(
+              onTap: () {
+                print("tap on option ${option['idx']}");
+                // check if tts is playing or continued, then pause it
+                if ((store.state.ttsState == TtsState.playing) ||
+                    (store.state.ttsState == TtsState.continued)) {
+                  store.dispatch(StopSpeakAction());
+                  String newVoiceText =
+                      "Your choice is : option ${idx2Str(option['idx'])}";
+                  store.dispatch(SetVoiceTextAction(newVoiceText));
+                  store.dispatch(SpeakTextAction(newVoiceText));
+                }
+                // pop the last route
+                Navigator.pop(context);
+                // push the new route on the previous route
+                Navigator.pushNamed(context, '/game/wait_result');
+              },
+              child: MyCardText(
+                width: 130,
+                text: option['option'],
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                cardColor: Colors.red,
+              )))
+          .toList(),
     );
   }
 }

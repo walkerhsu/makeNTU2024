@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:redux/redux.dart';
-import 'package:rpg_game/game/Components/loading.dart';
 import 'package:rpg_game/game/Components/progress_bar.dart';
 import 'package:rpg_game/game/game_main/story.dart';
 import 'package:rpg_game/game/game_main/ttsState/actions.dart';
 import 'package:rpg_game/game/game_main/ttsState/state.dart';
 import 'package:rpg_game/game/game_main/ttsState/store.dart';
 import 'package:rpg_game/game/game_main/ttsState/view_model.dart';
-import 'package:rpg_game/game/generate_story.dart';
 
 class GameMain extends StatefulWidget {
   const GameMain({
@@ -25,24 +23,18 @@ class GameMain extends StatefulWidget {
   final double dstLat;
   final double dstLng;
   final String story;
-  final List<String> options;
+  final List<Map<String, dynamic>> options;
 
   @override
   State<GameMain> createState() => _GameMainState();
 }
 
 class _GameMainState extends State<GameMain> {
-  String generateText(String story, List<String> options) {
+  String generateText(String story, List<Map<String, dynamic>> options) {
     String text = story;
     text += " Now, please select an option from the following options! ";
-    Map<int, String> num2words = {
-      1: "one",
-      2: "two",
-      3: "three",
-      4: "four",
-    };
-    for (int i = 1; i <= options.length; i++) {
-      text += "Option ${num2words[i]}: ${options[i]}. ";
+    for (int i = 0; i < options.length; i++) {
+      text += "Option ${options[i]["idx"]}: ${options[i]["option"]}. ";
     }
     return text;
   }
@@ -57,12 +49,14 @@ class _GameMainState extends State<GameMain> {
         }, builder: (BuildContext context, ViewModel viewModel) {
           store.dispatch(
               SetVoiceTextAction(generateText(widget.story, widget.options)));
+          store.dispatch(SetSpeechParams(0.5, 1.0, 0.5));
           return Scaffold(
             appBar: AppBar(
               title: const Text('Game'),
               leading: IconButton(
                 icon: const Icon(Icons.home),
                 onPressed: () {
+                  store.dispatch(viewModel.stop());
                   Navigator.popUntil(context, (route) => route.isFirst);
                 },
               ),
@@ -74,13 +68,13 @@ class _GameMainState extends State<GameMain> {
                         print("ttsState : ${viewModel.ttsState.toString()}");
                         if (viewModel.ttsState == TtsState.stopped) {
                           viewModel.speak();
-                        } else if (viewModel.ttsState == TtsState.playing) {
+                        } else if (viewModel.ttsState == TtsState.playing || viewModel.ttsState == TtsState.continued) {
                           viewModel.pause();
                         } else if (viewModel.ttsState == TtsState.paused) {
                           viewModel.speak();
                         }
                       },
-                      child: viewModel.ttsState == TtsState.playing
+                      child: viewModel.ttsState == TtsState.playing || viewModel.ttsState == TtsState.continued
                           ? Image.asset(
                               'assets/images/pause.png',
                               width: 25,
