@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:rpg_game/game/Components/loading.dart';
 import 'package:rpg_game/game/game_main/main.dart';
+import 'package:rpg_game/game/game_main/userState/store.dart';
 import 'package:rpg_game/game/generate_story.dart';
 
 class GameMainBuilder extends StatefulWidget {
@@ -13,10 +13,6 @@ class GameMainBuilder extends StatefulWidget {
 }
 
 class _GameMainBuilderState extends State<GameMainBuilder> {
-  late String _destination;
-  late String _gameType;
-  late double? _destLat;
-  late double? _destLng;
 
   @override
   void initState() {
@@ -25,26 +21,17 @@ class _GameMainBuilderState extends State<GameMainBuilder> {
 
   @override
   Widget build(BuildContext context) {
-    final arguments = (ModalRoute.of(context)?.settings.arguments ??
-        <String, dynamic>{}) as Map;
-    _destination = arguments['destination'] as String;
-    _gameType = arguments['gameType'] as String;
-    _destLat = (arguments['destLatLng'] as LatLng?)?.latitude;
-    _destLng = (arguments['destLatLng'] as LatLng?)?.longitude;
     return FutureBuilder(
-        future: getGPTResponse(_destination, _gameType),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const MyLoading();
-          } else {
-            return GameMain(
-                destination: _destination,
-                gameType: _gameType,
-                dstLat: _destLat!,
-                dstLng: _destLng!,
-                story: snapshot.data!["story"] as String,
-                options: snapshot.data!["options"] as List<Map<String, dynamic>>);
-          }
-        });
+          future: getGPTResponse(userStateStore.state.destination, userStateStore.state.gameType),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const MyLoading();
+            } else {
+              return GameMain(
+                  story: snapshot.data!["story"] as String,
+                  options:
+                      snapshot.data!["options"] as List<Map<String, dynamic>>);
+            }
+          });
   }
 }

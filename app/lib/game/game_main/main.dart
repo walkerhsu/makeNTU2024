@@ -11,17 +11,9 @@ import 'package:rpg_game/game/game_main/ttsState/view_model.dart';
 class GameMain extends StatefulWidget {
   const GameMain({
     super.key,
-    required this.destination,
-    required this.gameType,
-    required this.dstLat,
-    required this.dstLng,
     required this.story,
     required this.options,
   });
-  final String destination;
-  final String gameType;
-  final double dstLat;
-  final double dstLng;
   final String story;
   final List<Map<String, dynamic>> options;
 
@@ -41,22 +33,23 @@ class _GameMainState extends State<GameMain> {
 
   @override
   Widget build(BuildContext context) {
+    print("in");
     return StoreProvider<AppState>(
-        store: store,
-        child: StoreConnector<AppState, ViewModel>(
+        store: appStateStore,
+        child: StoreConnector<AppState, TTSViewModel>(
             converter: (Store<AppState> store) {
-          return ViewModel.create(store);
-        }, builder: (BuildContext context, ViewModel viewModel) {
-          store.dispatch(
+          return TTSViewModel.create(store);
+        }, builder: (BuildContext context, TTSViewModel ttsViewModel) {
+          appStateStore.dispatch(
               SetVoiceTextAction(generateText(widget.story, widget.options)));
-          store.dispatch(SetSpeechParams(0.5, 1.0, 0.5));
+          appStateStore.dispatch(SetSpeechParams(0.5, 1.0, 0.5));
           return Scaffold(
             appBar: AppBar(
               title: const Text('Game'),
               leading: IconButton(
                 icon: const Icon(Icons.home),
                 onPressed: () {
-                  store.dispatch(viewModel.stop());
+                  appStateStore.dispatch(ttsViewModel.stop());
                   Navigator.popUntil(context, (route) => route.isFirst);
                 },
               ),
@@ -65,16 +58,18 @@ class _GameMainState extends State<GameMain> {
                   padding: const EdgeInsets.symmetric(horizontal: 20.0),
                   child: InkWell(
                       onTap: () {
-                        print("ttsState : ${viewModel.ttsState.toString()}");
-                        if (viewModel.ttsState == TtsState.stopped) {
-                          viewModel.speak();
-                        } else if (viewModel.ttsState == TtsState.playing || viewModel.ttsState == TtsState.continued) {
-                          viewModel.pause();
-                        } else if (viewModel.ttsState == TtsState.paused) {
-                          viewModel.speak();
+                        print("ttsState : ${ttsViewModel.ttsState.toString()}");
+                        if (ttsViewModel.ttsState == TtsState.stopped) {
+                          ttsViewModel.speak();
+                        } else if (ttsViewModel.ttsState == TtsState.playing ||
+                            ttsViewModel.ttsState == TtsState.continued) {
+                          ttsViewModel.pause();
+                        } else if (ttsViewModel.ttsState == TtsState.paused) {
+                          ttsViewModel.speak();
                         }
                       },
-                      child: viewModel.ttsState == TtsState.playing || viewModel.ttsState == TtsState.continued
+                      child: ttsViewModel.ttsState == TtsState.playing ||
+                              ttsViewModel.ttsState == TtsState.continued
                           ? Image.asset(
                               'assets/images/pause.png',
                               width: 25,
@@ -89,8 +84,6 @@ class _GameMainState extends State<GameMain> {
             body: Column(
               children: [
                 ProgressBar(
-                  dstLat: widget.dstLat,
-                  dstLng: widget.dstLng,
                   width: MediaQuery.of(context).size.width * 0.8,
                   height: 25,
                   color: Colors.blue,

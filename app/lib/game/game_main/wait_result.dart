@@ -15,13 +15,13 @@ class WaitResultPage extends StatefulWidget {
 
 class _WaitResultPageState extends State<WaitResultPage> {
   Timer? timer = Timer.periodic(const Duration(seconds: 1), (Timer timer) {
-    store.dispatch(SetHealthAction(store.state.health - 1));
+    userStateStore.dispatch(SetHealthAction(userStateStore.state.health - 1));
   });
 
   @override
   Widget build(BuildContext context) {
     return StoreProvider<UserState>(
-        store: store,
+        store: userStateStore,
         child: StoreConnector<UserState, double>(
             converter: (store) => store.state.health,
             builder: (context, health) {
@@ -33,7 +33,8 @@ class _WaitResultPageState extends State<WaitResultPage> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
-                      Text(store.state.health.toString(), style: Theme.of(context).textTheme.bodySmall),
+                      Text(userStateStore.state.health.toString(),
+                          style: Theme.of(context).textTheme.bodySmall),
                     ],
                   ),
                 ),

@@ -68,13 +68,13 @@ class _StoryBodyState extends State<StoryBody> {
               onTap: () {
                 print("tap on option ${option['idx']}");
                 // check if tts is playing or continued, then pause it
-                if ((store.state.ttsState == TtsState.playing) ||
-                    (store.state.ttsState == TtsState.continued)) {
-                  store.dispatch(StopSpeakAction());
+                if ((appStateStore.state.ttsState == TtsState.playing) ||
+                    (appStateStore.state.ttsState == TtsState.continued)) {
+                  appStateStore.dispatch(StopSpeakAction());
                   String newVoiceText =
                       "Your choice is : option ${idx2Str(option['idx'])}";
-                  store.dispatch(SetVoiceTextAction(newVoiceText));
-                  store.dispatch(SpeakTextAction(newVoiceText));
+                  appStateStore.dispatch(SetVoiceTextAction(newVoiceText));
+                  appStateStore.dispatch(SpeakTextAction(newVoiceText));
                 }
                 // push the new route on the previous route
                 Navigator.pushNamed(context, '/game/wait_result');

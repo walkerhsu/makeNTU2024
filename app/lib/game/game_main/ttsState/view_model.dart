@@ -2,14 +2,14 @@ import 'package:redux/redux.dart';
 import 'package:rpg_game/game/game_main/ttsState/actions.dart';
 import 'package:rpg_game/game/game_main/ttsState/state.dart';
 
-class ViewModel {
+class TTSViewModel {
   final TtsState ttsState;
   final Function speak;
   final Function stop;
   final Function pause;
   String text;
 
-  ViewModel({
+  TTSViewModel({
     this.ttsState = TtsState.stopped,
     this.text = "",
     required this.speak,
@@ -17,8 +17,8 @@ class ViewModel {
     required this.pause,
   });
 
-  factory ViewModel.create(Store<AppState> store) {
-    return ViewModel(
+  factory TTSViewModel.create(Store<AppState> store) {
+    return TTSViewModel(
       ttsState: store.state.ttsState,
       text: store.state.voiceText,
       speak: () {
