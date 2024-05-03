@@ -35,7 +35,7 @@ class _StoryBodyState extends State<StoryBody> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-                color: Colors.white, borderRadius: BorderRadius.circular(15)),
+                color: const Color.fromARGB(255, 180, 180, 180) , borderRadius: BorderRadius.circular(15)),
             width: 400,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
@@ -84,7 +84,7 @@ class _StoryBodyState extends State<StoryBody> {
                 text: option['option'],
                 textAlign: TextAlign.center,
                 maxLines: 2,
-                cardColor: Colors.red,
+                cardColor: Colors.purple[100]!,
               )))
           .toList(),
     );

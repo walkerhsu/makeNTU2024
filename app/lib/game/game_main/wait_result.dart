@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
+import 'package:rpg_game/game/Components/progress_bar.dart';
 import 'package:rpg_game/game/game_main/userState/actions.dart';
 import 'package:rpg_game/game/game_main/userState/state.dart';
 import 'package:rpg_game/game/game_main/userState/store.dart';
@@ -33,8 +34,15 @@ class _WaitResultPageState extends State<WaitResultPage> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
+                      ProgressBar(
+                        width: MediaQuery.of(context).size.width * 0.8,
+                        height: 25,
+                        color: Colors.blue,
+                        backgroundColor: Colors.black,
+                      ),
                       Text(userStateStore.state.health.toString(),
-                          style: Theme.of(context).textTheme.bodySmall),
+                          style: TextStyle(fontSize: 30,
+                              color: Theme.of(context).textTheme.bodySmall!.color),),
                     ],
                   ),
                 ),

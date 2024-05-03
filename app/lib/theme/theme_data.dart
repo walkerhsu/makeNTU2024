@@ -14,6 +14,14 @@ class AppTheme {
           fontSize: 12,
           color: isDarkTheme ? const Color.fromARGB(255, 195, 191, 191) : Colors.black.withOpacity(0.8),
         ),
+        // bodyMedium: TextStyle(
+        //   fontSize: 24,
+        //   color: isDarkTheme ? const Color.fromARGB(255, 195, 191, 191) : Colors.black.withOpacity(0.8),
+        // ),
+        // bodyLarge: TextStyle(
+        //   fontSize: 30,
+        //   color: isDarkTheme ? const Color.fromARGB(255, 195, 191, 191) : Colors.black.withOpacity(0.8),
+        // ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
