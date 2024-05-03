@@ -5,8 +5,6 @@ import 'package:flutter_tts/flutter_tts.dart';
 import 'package:rpg_game/game/game_main/ttsState/actions.dart';
 import 'package:rpg_game/game/game_main/ttsState/store.dart';
 
-// ignore_for_file: avoid_print
-
 enum TtsState { playing, stopped, paused, continued }
 
 class AppState {
@@ -35,8 +33,8 @@ class AppState {
 
   AppState({
     this.volume = 1.0,
-    this.pitch = 0.5,
-    this.rate = 0.6,
+    this.pitch = 1.0,
+    this.rate = 0.5,
     this.voiceText = "",
     this.inputLength = 0,
     this.ttsState = TtsState.stopped,
@@ -44,54 +42,44 @@ class AppState {
     Future.delayed(Duration.zero, () {
       appStateStore.dispatch(SetAwaitOptionsAction(true));
     });
-    
+
     if (isAndroid) {
       _getDefaultEngine();
       _getDefaultVoice();
     }
     flutterTts.setStartHandler(() {
-      print("Playing");
       appStateStore.dispatch(SetStartAction());
     });
 
     flutterTts.setCompletionHandler(() {
-      print("Complete");
       appStateStore.dispatch(SetCompletedAction());
     });
 
     flutterTts.setCancelHandler(() {
-      print("Cancel");
       appStateStore.dispatch(SetCancelAction());
     });
 
     flutterTts.setPauseHandler(() {
-      print("Paused");
       appStateStore.dispatch(SetPauseAction());
     });
 
     flutterTts.setContinueHandler(() {
-      print("Continued");
       appStateStore.dispatch(SetContinueAction());
     });
 
     flutterTts.setErrorHandler((msg) {
-      print("error: $msg");
       appStateStore.dispatch(SetErrorAction());
     });
   }
 
   Future _getDefaultEngine() async {
     var engine = await flutterTts.getDefaultEngine;
-    if (engine != null) {
-      print(engine);
-    }
+    if (engine != null) {}
   }
 
   Future _getDefaultVoice() async {
     var voice = await flutterTts.getDefaultVoice;
-    if (voice != null) {
-      print(voice);
-    }
+    if (voice != null) {}
   }
 
   AppState copyWith({

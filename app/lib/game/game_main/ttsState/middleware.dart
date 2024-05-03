@@ -8,13 +8,17 @@ void ttsMiddleware(
   final FlutterTts flutterTts = store.state.flutterTts;
   if (action is SpeakTextAction) {
     // Perform text-to-speech operation
+    print(store.state.volume);
     await flutterTts.setVoice({"name": "Karen", "locale": "en-AU"});
     await flutterTts.setVolume(store.state.volume);
     await flutterTts.setSpeechRate(store.state.rate);
     await flutterTts.setPitch(store.state.pitch);
+    await flutterTts.setIosAudioCategory(
+      IosTextToSpeechAudioCategory.playAndRecord,
+      [IosTextToSpeechAudioCategoryOptions.defaultToSpeaker],
+    );
     await flutterTts.speak(action.text);
     store.dispatch(SetStartAction());
-
   } else if (action is StopSpeakAction) {
     // Stop the text-to-speech operation
     var result = await flutterTts.stop();

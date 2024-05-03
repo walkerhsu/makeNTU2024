@@ -45,13 +45,16 @@ class _StoryBodyState extends State<StoryBody> {
                   maxLines: 50,
                 ),
                 const SizedBox(
-                  height: 50,
+                  height: 25,
                 ),
                 _buildOptionsRow(options1_2),
                 const SizedBox(
-                  height: 30,
+                  height: 25,
                 ),
                 _buildOptionsRow(options3_4),
+                const SizedBox(
+                  height: 25,
+                ),
               ],
             ),
           )
