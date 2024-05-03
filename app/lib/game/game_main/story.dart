@@ -76,8 +76,6 @@ class _StoryBodyState extends State<StoryBody> {
                   store.dispatch(SetVoiceTextAction(newVoiceText));
                   store.dispatch(SpeakTextAction(newVoiceText));
                 }
-                // pop the last route
-                Navigator.pop(context);
                 // push the new route on the previous route
                 Navigator.pushNamed(context, '/game/wait_result');
               },
