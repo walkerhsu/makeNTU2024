@@ -8,7 +8,7 @@ from setting import *
 
 droid_cam_url = "http://192.168.50.179:4747/video" #If you are using DroidCam
 
-camera_on = False
+camera_on = True
 if camera_on:
     cap = cv2.VideoCapture(droid_cam_url) #If you are using DroidCam
     fps = cap.get(cv2.CAP_PROP_FPS)
