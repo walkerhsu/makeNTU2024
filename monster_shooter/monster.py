@@ -9,7 +9,10 @@ def get_monster_info(monster_json):
         max_health = monster["HP"]
         strength = monster["ATK"]
         attack_time = 300 / monster["ATKSPD"]
-        pic = pygame.image.load("./pictures/output.png")
+        if monster["TYPE"] == 0:
+            pic = pygame.image.load(f"./pictures/mob/{random.randint(1,7)}.png")
+        else:
+            pic = pygame.image.load(f"./pictures/boss/{random.randint(1,5)}.png")
         pos = (random.randint(0, SCREEN_WIDTH - pic.get_rect().size[0]), random.randint(0, SCREEN_HEIGHT - pic.get_rect().size[1]))
         speed = monster["MVSPD"] / 5
         monster_type = monster["TYPE"]
