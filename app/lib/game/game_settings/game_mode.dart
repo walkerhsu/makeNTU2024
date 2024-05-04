@@ -52,17 +52,11 @@ class _GameModeMenuState extends State<GameModeMenu> {
   final TextEditingController _controller = TextEditingController();
 
   List<String> gameModes = <String>[
-    "Random",
-    "Fantasy",
-    "Mystery",
-    "Action",
-    "Adventure",
-    "Horror",
-    "A",
-    "B",
-    "C",
-    "D",
-    "E"
+    "冒險",
+    "動作",
+    "射擊",
+    "策略",
+    "隨機"
   ];
   List<String> filteredGameModes = <String>[];
 

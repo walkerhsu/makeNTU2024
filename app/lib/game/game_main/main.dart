@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:redux/redux.dart';
 import 'package:rpg_game/game/Components/progress_bar.dart';
@@ -8,7 +7,8 @@ import 'package:rpg_game/game/game_main/ttsState/actions.dart';
 import 'package:rpg_game/game/game_main/ttsState/state.dart';
 import 'package:rpg_game/game/game_main/ttsState/store.dart';
 import 'package:rpg_game/game/game_main/ttsState/view_model.dart';
-import 'package:rpg_game/game/generate_Story.dart';
+import 'package:rpg_game/game/game_main/userState/actions.dart';
+import 'package:rpg_game/game/game_main/userState/store.dart';
 
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
@@ -34,87 +34,67 @@ class _GameMainState extends State<GameMain> {
   final String locale = "zh-TW";
   List<String> sentences = [];
 
-  List<String> generateText(String story, List<Map<String, dynamic>> options) {
+  List<String> generateText(String story) {
     String text = story;
-    // text += "現在，請從以下的選項進行選擇。";
-    // for (int i = 0; i < options.length; i++) {
-    //   text +=
-    //       "選項${idx2Str(options[i]["idx"], language)}： ${options[i]["option"]}。";
-    // }
     sentences = text.split("。");
-    // split the last element from the list
     sentences.removeLast();
     print(sentences);
     return sentences;
   }
 
-  void checkAnswer() async {
-    print("user last words: $_userLastWords");
+  void checkAnswer() {
     if (language == "zh") {
       if (_userLastWords == "一" ||
           _userLastWords == widget.options[0]["option"]) {
-        String newVoiceText = voice2str(widget.options[0], "zh");
-        appStateStore.dispatch(SetVoiceTextAction(newVoiceText));
-        await appStateStore.dispatch(SpeakTextAction());
+        userStateStore.dispatch(SetOptionAction(widget.options[0]["option"]));
       } else if (_userLastWords == "二" ||
           _userLastWords == widget.options[1]["option"]) {
-        String newVoiceText = voice2str(widget.options[1], "zh");
-        appStateStore.dispatch(SetVoiceTextAction(newVoiceText));
-        await appStateStore.dispatch(SpeakTextAction());
+        userStateStore.dispatch(SetOptionAction(widget.options[1]["option"]));
       } else if (_userLastWords == "三" ||
           _userLastWords == "山" ||
           _userLastWords == widget.options[2]["option"]) {
-        String newVoiceText = voice2str(widget.options[2], "zh");
-        appStateStore.dispatch(SetVoiceTextAction(newVoiceText));
-        await appStateStore.dispatch(SpeakTextAction());
+        userStateStore.dispatch(SetOptionAction(widget.options[2]["option"]));
       } else if (_userLastWords == "四" ||
           _userLastWords == "是" ||
           _userLastWords == widget.options[3]["option"]) {
-        String newVoiceText = voice2str(widget.options[3], "zh");
-        appStateStore.dispatch(SetVoiceTextAction(newVoiceText));
-        await appStateStore.dispatch(SpeakTextAction());
+        userStateStore.dispatch(SetOptionAction(widget.options[3]["option"]));
       } else {
         appStateStore.dispatch(SetVoiceTextAction("選擇錯誤，請重新選擇！"));
-        await appStateStore.dispatch(SpeakTextAction());
+        appStateStore.dispatch(SpeakTextAction());
+        return;
       }
     } else if (language == "en") {
       if (_userLastWords.toLowerCase() == "one" ||
           _userLastWords.toLowerCase() == widget.options[0]["option"]) {
-        String newVoiceText = voice2str(widget.options[0], "en");
-        appStateStore.dispatch(SetVoiceTextAction(newVoiceText));
-        await appStateStore.dispatch(SpeakTextAction());
+        userStateStore.dispatch(SetOptionAction(widget.options[0]["option"]));
       } else if (_userLastWords.toLowerCase() == "two" ||
           _userLastWords.toLowerCase() == widget.options[1]["option"]) {
-        String newVoiceText = voice2str(widget.options[1], "en");
-        appStateStore.dispatch(SetVoiceTextAction(newVoiceText));
-        await appStateStore.dispatch(SpeakTextAction());
+        userStateStore.dispatch(SetOptionAction(widget.options[1]["option"]));
       } else if (_userLastWords.toLowerCase() == "three" ||
           _userLastWords.toLowerCase() == widget.options[2]["option"]) {
-        String newVoiceText = voice2str(widget.options[2], "en");
-        appStateStore.dispatch(SetVoiceTextAction(newVoiceText));
-        await appStateStore.dispatch(SpeakTextAction());
+        userStateStore.dispatch(SetOptionAction(widget.options[2]["option"]));
       } else if (_userLastWords.toLowerCase() == "four" ||
           _userLastWords.toLowerCase() == widget.options[3]["option"]) {
-        String newVoiceText = voice2str(widget.options[3], "en");
-        appStateStore.dispatch(SetVoiceTextAction(newVoiceText));
-        await appStateStore.dispatch(SpeakTextAction());
+        userStateStore.dispatch(SetOptionAction(widget.options[3]["option"]));
       } else {
         appStateStore.dispatch(SetVoiceTextAction(
             "Invalid option! Please select a valid option!"));
-        await appStateStore.dispatch(SpeakTextAction());
+        appStateStore.dispatch(SpeakTextAction());
+        return;
       }
     }
-    appStateStore.dispatch(SetReadStoryAction(true));
     appStateStore.dispatch(SetCancelAction());
+    appStateStore.dispatch(SetStorySentencesAction(['']));
+    Navigator.pop(context);
+    Navigator.pushNamed(context, '/game/wait_result');
   }
 
   @override
   void initState() {
     super.initState();
     _initSpeech();
-    appStateStore.dispatch(
-        SetStorySentencesAction(generateText(widget.story, widget.options)));
-    appStateStore.dispatch(SetReadStoryAction(true));
+    appStateStore.dispatch(SetStorySentencesAction(generateText(widget.story)));
+    appStateStore.dispatch(SetSentenceIndexAction(0));
     appStateStore.dispatch(SpeakTextAction());
   }
 
@@ -124,10 +104,8 @@ class _GameMainState extends State<GameMain> {
   }
 
   void _startListening() async {
-    appStateStore.dispatch(SetReadStoryAction(false));
-    print("user mode start listening");
+    appStateStore.dispatch(StopSpeakAction());
     if (_userSpeechEnabled) {
-      print("_userSpeechEnabled true");
       await _userSpeechToText.listen(
           localeId: locale, onResult: _onSpeechResult);
     }
@@ -223,7 +201,6 @@ class _GameMainState extends State<GameMain> {
               floatingActionButton: FloatingActionButton(
                 onPressed: () async {
                   await appStateStore.dispatch(ttsViewModel.stop());
-                  appStateStore.dispatch(SetSentenceIndexAction(0));
                   _userSpeechToText.isNotListening
                       ? _startListening()
                       : _stopListening();

@@ -3,7 +3,8 @@ import 'package:rpg_game/game/Components/card_text.dart';
 import 'package:rpg_game/game/game_main/ttsState/actions.dart';
 import 'package:rpg_game/game/game_main/ttsState/state.dart';
 import 'package:rpg_game/game/game_main/ttsState/store.dart';
-import 'package:rpg_game/game/generate_Story.dart';
+import 'package:rpg_game/game/game_main/userState/actions.dart';
+import 'package:rpg_game/game/game_main/userState/store.dart';
 
 class StoryBody extends StatefulWidget {
   final String story;
@@ -61,9 +62,10 @@ class _StoryBodyState extends State<StoryBody> {
                     IconButton(
                         onPressed: () async {
                           if (appStateStore.state.sentenceIndex == 0) return;
-                          await appStateStore.dispatch(SetChangeIndexAction(ChangeIndex.previous));
+                          await appStateStore.dispatch(SetSentenceIndexAction
+                              (appStateStore.state.sentenceIndex - 1));
                           await appStateStore.dispatch(StopSpeakAction());
-                          // await appStateStore.dispatch(SetChangeIndexAction(ChangeIndex.next));
+                          // await appStateStore.dispatch(SpeakTextAction());
                         },
                         icon: const Icon(Icons.arrow_back_ios_outlined)),
                     IconButton(
@@ -72,10 +74,10 @@ class _StoryBodyState extends State<StoryBody> {
                               appStateStore.state.storySentences.length - 1) {
                             return;
                           }
-                          print("right");
-                          await appStateStore.dispatch(SetChangeIndexAction(ChangeIndex.next));
+                          await appStateStore.dispatch(SetSentenceIndexAction
+                              (appStateStore.state.sentenceIndex + 1));
                           await appStateStore.dispatch(StopSpeakAction());
-                          print("stopSpeakright");
+                          // await appStateStore.dispatch(SpeakTextAction());
                         },
                         icon: const Icon(
                           Icons.arrow_forward_ios_outlined,
@@ -104,11 +106,10 @@ class _StoryBodyState extends State<StoryBody> {
                 if ((appStateStore.state.ttsState == TtsState.playing) ||
                     (appStateStore.state.ttsState == TtsState.continued)) {
                   appStateStore.dispatch(StopSpeakAction());
-                  String newVoiceText = voice2str(option, "zh");
-                  appStateStore.dispatch(SetVoiceTextAction(newVoiceText));
-                  appStateStore.dispatch(SpeakTextAction());
                 }
                 // push the new route on the previous route
+                userStateStore.dispatch(SetOptionAction(option['option']));
+                appStateStore.dispatch(SetStorySentencesAction(['']));
                 Navigator.pushNamed(context, '/game/wait_result');
               },
               child: MyCardText(

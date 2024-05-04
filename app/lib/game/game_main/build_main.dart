@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:rpg_game/game/Components/loading.dart';
 import 'package:rpg_game/game/game_main/main.dart';
 import 'package:rpg_game/game/game_main/userState/store.dart';
-import 'package:rpg_game/game/generate_story.dart';
+import 'package:rpg_game/game/generate_Story.dart';
 
 class GameMainBuilder extends StatefulWidget {
   // ignore: prefer_const_constructors_in_immutables
@@ -22,11 +22,12 @@ class _GameMainBuilderState extends State<GameMainBuilder> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-          future: getGPTResponse(userStateStore.state.destination, userStateStore.state.gameType),
+          future: getHTTPResponse(userStateStore.state.destination, userStateStore.state.gameType),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const MyLoading();
             } else {
+              print(snapshot.data);
               return GameMain(
                   story: snapshot.data!["story"] as String,
                   options:
