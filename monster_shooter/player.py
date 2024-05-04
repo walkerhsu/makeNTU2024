@@ -84,7 +84,7 @@ class Player:
         pygame.image.save(frame, f"./pictures/{time.time()}.png")
 
     def display_info(self, screen, picture_wait_time):
-        font = pygame.font.Font(None, 36)
+        font = pygame.font.Font("./game_font.ttf", 36)
         screen.blit(self.health_pic, (10, 10))
         pygame.draw.rect(screen, RED, (self.health_pic.get_rect().size[0] + 10, 10 + self.health_pic.get_rect().size[1]/2 - int(SCREEN_HEIGHT / 64) , self.cur_health / self.health_ratio, int(SCREEN_HEIGHT / 32)))
         pygame.draw.rect(screen, BLACK, (self.health_pic.get_rect().size[0] + 10, 10 + self.health_pic.get_rect().size[1]/2 - int(SCREEN_HEIGHT / 64) , self.cur_health / self.health_ratio, int(SCREEN_HEIGHT / 32)), 4)
@@ -97,11 +97,9 @@ class Player:
                 self.reload_sfx.play()
                 self.ammo = self.max_ammo
                 self.reload_time = self.max_reload_time
-            font = pygame.font.Font(None, 36)
-            reload_text = font.render("Reloading...", True, RED)
+            reload_text = font.render("RELOADING...", True, RED)
             screen.blit(reload_text, (screen.get_size()[0] - reload_text.get_width() - 10, 10))
-        else:              
-            font = pygame.font.Font(None, 36)
+        else:
             screen.blit(self.ammo_pic, (screen.get_size()[0] - self.ammo_pic.get_rect().size[0] - 10, 10))
             ammo_text = font.render(f"{self.ammo} / {self.max_ammo}", True, RED)
             screen.blit(ammo_text, (screen.get_size()[0] - ammo_text.get_width() - 10, 20 + self.ammo_pic.get_rect().size[1]))
@@ -110,6 +108,6 @@ class Player:
                 screen.blit(self.bullet_pic, (self.bullet_pos[0] - self.bullet_pic.get_rect().size[0] / 2, self.bullet_pos[1] - self.bullet_pic.get_rect().size[1] / 2))
         skill_pos = (SCREEN_WIDTH - 5*self.skill_pic.get_rect().size[0]/4, SCREEN_HEIGHT- 5*self.skill_pic.get_rect().size[1]/4)
         screen.blit(self.skill_pic, skill_pos)
-        picture_text = font.render(f"{int(picture_wait_time/30)} s", True, BLUE)
+        picture_text = font.render(f"{int(picture_wait_time/30)} SEC", True, BLUE)
         screen.blit(picture_text, (skill_pos[0] + self.skill_pic.get_rect().size[0]/2 - picture_text.get_width()/2, skill_pos[1] - picture_text.get_height() - 10))
         
