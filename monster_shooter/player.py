@@ -87,7 +87,7 @@ class Player:
         font = pygame.font.Font("./game_font.ttf", 36)
         screen.blit(self.health_pic, (10, 10))
         pygame.draw.rect(screen, RED, (self.health_pic.get_rect().size[0] + 10, 10 + self.health_pic.get_rect().size[1]/2 - int(SCREEN_HEIGHT / 64) , self.cur_health / self.health_ratio, int(SCREEN_HEIGHT / 32)))
-        pygame.draw.rect(screen, BLACK, (self.health_pic.get_rect().size[0] + 10, 10 + self.health_pic.get_rect().size[1]/2 - int(SCREEN_HEIGHT / 64) , self.cur_health / self.health_ratio, int(SCREEN_HEIGHT / 32)), 4)
+        pygame.draw.rect(screen, BLACK, (self.health_pic.get_rect().size[0] + 10, 10 + self.health_pic.get_rect().size[1]/2 - int(SCREEN_HEIGHT / 64), self.health_bar_length, int(SCREEN_HEIGHT / 32)), 4)
         screen.blit(self.strength_pic, (10, 20 + self.health_pic.get_rect().size[1]))
         atk_text = font.render(f"{self.strength}", True, GREEN)
         screen.blit(atk_text, (10 + self.strength_pic.get_rect().size[0] + 10, 20 + self.health_pic.get_rect().size[1] + self.strength_pic.get_rect().size[1]/2 - atk_text.get_height()/2))
