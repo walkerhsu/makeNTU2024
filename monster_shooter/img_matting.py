@@ -1,8 +1,8 @@
 from rembg import remove
 import cv2  
   
-input_path = './monster.png' 
-output_path = './output.png'
+input_path = './pictures/monster.png' 
+output_path = './pictures/output.png'
 input = cv2.imread(input_path)
 img = remove(input)
 
@@ -40,5 +40,12 @@ for j in range(len(img[0])-1, -1, -1):
         break
 
 cut_img = img[top[0]:bottom[0], left[1]:right[1]]
+
+#make the cut_img be (x, 240, 4) or (240, x, 4) with the same ratio
+if cut_img.shape[0] > cut_img.shape[1]:
+    cut_img = cv2.resize(cut_img, (120, int(120/cut_img.shape[1]*cut_img.shape[0])))
+else:
+    cut_img = cv2.resize(cut_img, (int(120/cut_img.shape[0]*cut_img.shape[1]), 120))
+
 
 cv2.imwrite(output_path, cut_img)
