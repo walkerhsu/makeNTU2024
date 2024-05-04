@@ -27,7 +27,7 @@ while not finish:
         response = messages.data[0].content[0].text.value
         print(response)
         response = json.loads(response)
-        if response['Status'] == 'End':
+        if response['status'] == 'end':
             finish = True
     else:
         print(run.status)
