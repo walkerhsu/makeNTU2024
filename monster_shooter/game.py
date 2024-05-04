@@ -1,9 +1,8 @@
 import pygame
-import time
 import cv2
 import numpy as np
 import requests as req
-from monster import Monster, get_monster_info
+from monster import get_monster_info
 from player import Player, get_player_info
 from setting import *
 from gesture_predictor import GesturePredictor
@@ -12,6 +11,14 @@ monsters_info_http = "http://10.10.2.97:8000/get_monsters_info"
 player_info_http = "http://10.10.2.97:8000/get_user_info"
 post_url = "http://10.10.2.97:8000/game_ended"
 battle_url = "http://10.10.2.97:8000/is_battle"
+save_pic_url = "http://10.10.2.97:8000/save_pic"
+
+def save_pic(pic):
+    try:
+        files = {'file': open(pic, 'rb')}
+        req.post(save_pic_url, files = files)
+    except:
+        return
 
 def fetch_monster_info():
     try:
@@ -47,7 +54,6 @@ if camera_on:
     fps = cap.get(cv2.CAP_PROP_FPS)
     cap.set(cv2.CAP_PROP_FPS, FPS)
 
-
 pygame.init()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption('Monster Shooter')
@@ -82,9 +88,10 @@ def main():
 
         if gesture == 'observe':
             if picture_wait_time == 0:
-                player.take_picture(frame)
+                name = player.take_picture(frame)
+                save_pic(name)
                 picture_wait_time = 300
-        if picture_wait_time > 0:        
+        if picture_wait_time > 0:
             picture_wait_time -= 1
 
         if idle_flag:
@@ -126,7 +133,6 @@ def main():
                 cur_monster_index += 1
                 if cur_monster_index >= len(monster_list):
                     idle_flag = True
-                    #post win or loss to server
                     req.post(post_url, json = {'status': "win"})
                     continue
             if gesture == 'aim' or gesture == 'shoot':

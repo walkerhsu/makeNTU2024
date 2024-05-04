@@ -81,7 +81,9 @@ class Player:
         self.max_reload_time += amount
 
     def take_picture(self, frame):
-        pygame.image.save(frame, f"./pictures/{time.time()}.png")
+        name = f"./pictures/{time.time()}.png"
+        pygame.image.save(frame, name)
+        return name
 
     def display_info(self, screen, picture_wait_time):
         font = pygame.font.Font("./game_font.ttf", 36)
