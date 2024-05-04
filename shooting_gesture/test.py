@@ -37,7 +37,7 @@ def get_landmarks(frame):
 
 cv2.namedWindow('main', cv2.WINDOW_NORMAL)
 WIDTH, HEIGHT = 1920, 1080
-
+shots = []
 running = True
 while running:
 
@@ -54,6 +54,16 @@ while running:
         circle_pos = pos
         circle_pos = (int(circle_pos[0]*WIDTH), int(circle_pos[1]*HEIGHT))
         cv2.circle(screen, circle_pos, circle_radius, (255, 0, 0), -1)
+        
+    if gesture == 'shoot':
+        shots.append(pos)
+        if len(shots) > 2:
+            shots.pop(0)
+            
+    for shot in shots:
+        shot = (int(shot[0]*WIDTH), int(shot[1]*HEIGHT))
+        cv2.circle(screen, shot, 10, (255, 255, 255), -1)
+    
 
     screen = cv2.putText(screen, gesture, (10, 150),
                          cv2.FONT_HERSHEY_SIMPLEX, 5, (0, 0, 255), 2, cv2.LINE_AA)
