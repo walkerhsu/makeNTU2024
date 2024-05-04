@@ -4,12 +4,11 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
+import 'package:rpg_game/game/game_main/userState/store.dart';
 import 'package:rpg_game/game/my_location.dart';
 import 'package:http/http.dart' as http;
 
 class ProgressBar extends StatefulWidget {
-  final double dstLat;
-  final double dstLng;
   final double width;
   final double height;
   final Color color;
@@ -17,8 +16,6 @@ class ProgressBar extends StatefulWidget {
 
   const ProgressBar({
     super.key,
-    required this.dstLat,
-    required this.dstLng,
     required this.width,
     required this.height,
     required this.color,
@@ -43,7 +40,7 @@ class _ProgressBarState extends State<ProgressBar>
   void initState() {
     super.initState();
     _timer = Timer.periodic(const Duration(seconds: 1), (Timer timer) {
-      getEstimatedTime().then((value) {
+      getEstimatedTime(userStateStore.state.dstLat, userStateStore.state.dstLng).then((value) {
         if (total == 0.1) {
           setState(() {
             total = value;
@@ -144,12 +141,10 @@ class _ProgressBarState extends State<ProgressBar>
     );
   }
 
-  Future<double> getEstimatedTime() async {
+  Future<double> getEstimatedTime(double dstLat, double dstLng) async {
     LatLng latlng = await MyLocation.handleCurrentPosition();
     final curLat = latlng.latitude;
     final curLng = latlng.longitude;
-    final dstLat = widget.dstLat;
-    final dstLng = widget.dstLng;
     final accessToken = dotenv.env['MAPBOX_ACCESS_TOKEN'];
     final url =
         'https://api.mapbox.com/directions/v5/mapbox/driving/$curLng,$curLat;$dstLng,$dstLat?steps=true&access_token=$accessToken';

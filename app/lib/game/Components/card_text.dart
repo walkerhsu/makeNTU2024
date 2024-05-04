@@ -19,7 +19,7 @@ class MyCardText extends StatelessWidget {
     this.width = 320,
     this.fontSize = 12,
     this.color = Colors.black,
-    this.cardColor = Colors.white,
+    this.cardColor = const Color.fromARGB(255, 220, 220, 220),
     this.fontWeight = FontWeight.normal,
     this.textAlign = TextAlign.left,
     this.maxLines = 1,

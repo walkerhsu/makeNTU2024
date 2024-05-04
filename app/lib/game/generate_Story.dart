@@ -28,12 +28,12 @@ Future<Map<String, dynamic>> getGPTResponse(
   bool test = true;
   if (test) {
     String story =
-        "In the realm of Etheria, a land teeming with magic and mystery, a group of unlikely heroes embarks on an epic quest. Bound by fate, they seek the legendary Crystal of Eternity, said to hold the power to reshape reality itself. Along their journey, they face treacherous dungeons, cunning foes, and moral dilemmas that test their resolve. Each member of the party brings unique skills and backgrounds, from the stoic warrior wielding a mighty blade to the enigmatic sorcerer harnessing arcane forces. As they venture forth, they uncover dark secrets that threaten to unravel the very fabric of existence.";
+        "在古老的東方王國，一場神秘的詛咒籠罩了整個城市。你是一名年輕的武士，被召喚前來解開這場詛咒的謎團。傳說中，唯有尋得神聖的水晶鑰匙才能解除詛咒。當你踏入城市，四條路徑展開在你面前：向神祕的龍族求助，探索古老的地下墓穴，尋找智慧的仙人，或者冒險闖蕩荒蕪之地。";
     List<Map<String, dynamic>> options = [
-      {"idx": 1, "option": "The Mysterious Cave"},
-      {"idx": 2, "option": "The Forbidden Temple"},
-      {"idx": 3, "option": "The Enchanted Forest"},
-      {"idx": 4, "option": "The Haunted Ruins"},
+      {"idx": 1, "option": "向神祕的龍族求助"},
+      {"idx": 2, "option": "探索古老的地下墓穴"},
+      {"idx": 3, "option": "尋找智慧的仙人"},
+      {"idx": 4, "option": "冒險闖蕩荒蕪之地"},
     ];
     Map<String, dynamic> data = {'story': story, 'options': options};
     return data; // Return the generated response
@@ -81,17 +81,51 @@ String generatePrompt(String destination, String gameType) {
   return prompt;
 }
 
-String idx2Str(int idx) {
+String idx2Str(int idx, String language) {
   switch (idx) {
     case 1:
-      return "one";
+      if (language == "en") {
+        return "one";
+      } else if (language == "zh") {
+        return "一";
+      } else {
+        return "unknown";
+      }
     case 2:
-      return "two";
+      if (language == "en") {
+        return "two";
+      } else if (language == "zh") {
+        return "二";
+      } else {
+        return "unknown";
+      }
     case 3:
-      return "three";
+      if (language == "en") {
+        return "three";
+      } else if (language == "zh") {
+        return "三";
+      } else {
+        return "unknown";
+      }
     case 4:
-      return "four";
+      if (language == "en") {
+        return "four";
+      } else if (language == "zh") {
+        return "四";
+      } else {
+        return "unknown";
+      }
     default:
       return "unknown";
+  }
+}
+
+String voice2str(Map<String, dynamic> option, String language) {
+  if (language == "en") {
+    return "Your choice is : option${idx2Str(option['idx'], "en")}:${option['option']}";
+  } else if (language == "zh") {
+    return "你的選擇是： 選項${idx2Str(option['idx'], "zh")}：${option['option']}";
+  } else {
+    return "unknown";
   }
 }

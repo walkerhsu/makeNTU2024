@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_redux/flutter_redux.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:quickalert/quickalert.dart';
+import 'package:redux/redux.dart';
+import 'package:rpg_game/game/game_main/userState/state.dart';
+import 'package:rpg_game/game/game_main/userState/store.dart';
+import 'package:rpg_game/game/game_main/userState/view_model.dart';
 
 import 'destination.dart';
 import 'game_mode.dart';
@@ -51,84 +56,89 @@ class _GameSettingsPageState extends State<GameSettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          title: const Text('Game Settings'),
-        ),
-        body: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              const SizedBox(
-                height: 20,
+    return StoreProvider<UserState>(
+        store: userStateStore,
+        child: StoreConnector<UserState, UserViewModel>(
+            converter: (Store<UserState> store) {
+          return UserViewModel.create(store);
+        }, builder: (BuildContext context, UserViewModel viewModel) {
+          return Scaffold(
+              appBar: AppBar(
+                title: const Text('Game Settings'),
               ),
-              DestinationField(
-                  setValue: setDestination,
-                  setShowGameTypeFilters: setShowGameTypeFilters,
-                  setShowDestinationFilters: setShowDestinationFilters,
-                  showFilters: _showDestinationFilters,
-                  textFormKey: _textFormKeyDest),
-              const SizedBox(
-                height: 20,
+              body: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    DestinationField(
+                        setValue: setDestination,
+                        setShowGameTypeFilters: setShowGameTypeFilters,
+                        setShowDestinationFilters: setShowDestinationFilters,
+                        showFilters: _showDestinationFilters,
+                        textFormKey: _textFormKeyDest),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    GameModeMenu(
+                      setValue: (value) {
+                        setGameType(value);
+                      },
+                      setShowGameTypeFilters: setShowGameTypeFilters,
+                      setShowDestinationFilters: setShowDestinationFilters,
+                      showFilters: _showGameTypeFilters,
+                      textFormKey: _textFormKeyGame,
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                  ],
+                ),
               ),
-              GameModeMenu(
-                setValue: (value) {
-                  setGameType(value);
-                },
-                setShowGameTypeFilters: setShowGameTypeFilters,
-                setShowDestinationFilters: setShowDestinationFilters,
-                showFilters: _showGameTypeFilters,
-                textFormKey: _textFormKeyGame,
+              floatingActionButton: SizedBox(
+                width: MediaQuery.of(context).size.width * 0.15,
+                height: MediaQuery.of(context).size.width * 0.15,
+                child: FloatingActionButton(
+                    onPressed: () async {
+                      if (_formKey.currentState!.validate()) {
+                        _formKey.currentState!.save();
+                      } else {
+                        return;
+                      }
+                      bool confirm = false;
+                      await QuickAlert.show(
+                        context: context,
+                        text: "Are you sure you picked the right settings?",
+                        // confirmBtnText: 'Yes',
+                        cancelBtnText: 'No',
+                        confirmBtnColor: Colors.green,
+                        cancelBtnTextStyle: const TextStyle(
+                            color: Colors.red,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold),
+                        type: QuickAlertType.confirm,
+                        onConfirmBtnTap: () {
+                          confirm = true;
+                          Navigator.pop(context);
+                        },
+                      );
+                      if (!mounted || !confirm) return;
+                      viewModel.destination = _destination!;
+                      viewModel.dstLat = _destLatLng!.latitude;
+                      viewModel.dstLng = _destLatLng!.longitude;
+                      viewModel.gameType = _gameType!;
+                      // ignore: use_build_context_synchronously
+                      Navigator.popUntil(context, (route) => route.isFirst);
+                      // ignore: use_build_context_synchronously
+                      Navigator.pushNamed(context, '/game/main');
+                    },
+                    child: const Icon(Icons.check)),
               ),
-              const SizedBox(
-                height: 20,
-              ),
-            ],
-          ),
-        ),
-        floatingActionButton: SizedBox(
-          width: MediaQuery.of(context).size.width * 0.15,
-          height: MediaQuery.of(context).size.width * 0.15,
-          child: FloatingActionButton(
-              onPressed: () async {
-                if (_formKey.currentState!.validate()) {
-                  _formKey.currentState!.save();
-                } 
-                else {
-                  return;
-                }
-                bool confirm = false;
-                await QuickAlert.show(
-                  context: context,
-                  text: "Are you sure you picked the right settings?",
-                  // confirmBtnText: 'Yes',
-                  cancelBtnText: 'No',
-                  confirmBtnColor: Colors.green,
-                  cancelBtnTextStyle: const TextStyle(
-                      color: Colors.red,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold),
-                  type: QuickAlertType.confirm,
-                  onConfirmBtnTap: () {
-                    confirm = true;
-                    Navigator.pop(context);
-                  },
-                );
-                if (!mounted || !confirm) return;
-
-                // ignore: use_build_context_synchronously
-                Navigator.popUntil(context, (route) => route.isFirst);
-                // ignore: use_build_context_synchronously
-                Navigator.pushNamed(context, '/game/main', arguments: {
-                  'destination': _destination,
-                  'destLatLng': _destLatLng,
-                  'gameType': _gameType,
-                });
-              },
-              child: const Icon(Icons.check)),
-        ),
-        floatingActionButtonLocation:
-            FloatingActionButtonLocation.miniCenterFloat);
+              floatingActionButtonLocation:
+                  FloatingActionButtonLocation.miniCenterFloat);
+        }));
   }
 }

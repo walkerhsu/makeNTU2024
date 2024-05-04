@@ -5,10 +5,8 @@ import 'package:flutter_tts/flutter_tts.dart';
 import 'package:rpg_game/game/game_main/ttsState/actions.dart';
 import 'package:rpg_game/game/game_main/ttsState/store.dart';
 
-// ignore_for_file: avoid_print
-
 enum TtsState { playing, stopped, paused, continued }
-
+enum ChangeIndex { next, previous }
 class AppState {
   final FlutterTts flutterTts = FlutterTts();
   String? language;
@@ -18,8 +16,12 @@ class AppState {
   double rate;
   bool isCurrentLanguageInstalled = false;
 
+  List<String> storySentences;
+  int sentenceIndex;
+  ChangeIndex changeIndex;
   String voiceText;
-  int? inputLength;
+
+  bool isReadStory;
 
   TtsState ttsState;
 
@@ -35,79 +37,65 @@ class AppState {
 
   AppState({
     this.volume = 1.0,
-    this.pitch = 0.5,
-    this.rate = 0.6,
+    this.pitch = 1.1,
+    this.rate = 0.5,
+    this.storySentences = const [],
+    this.sentenceIndex = 0,
     this.voiceText = "",
-    this.inputLength = 0,
-    this.ttsState = TtsState.stopped,
+    this.isReadStory = true,
+    this.ttsState = TtsState.playing,
+    this.changeIndex = ChangeIndex.next,
   }) {
     Future.delayed(Duration.zero, () {
-      store.dispatch(SetAwaitOptionsAction(true));
+      appStateStore.dispatch(SetAwaitOptionsAction(true));
     });
-    
-    if (isAndroid) {
-      _getDefaultEngine();
-      _getDefaultVoice();
-    }
     flutterTts.setStartHandler(() {
-      print("Playing");
-      store.dispatch(SetStartAction());
+      appStateStore.dispatch(SetStartAction());
     });
 
     flutterTts.setCompletionHandler(() {
-      print("Complete");
-      store.dispatch(SetCompletedAction());
+      print("complete handler");
+      appStateStore.dispatch(SetCompletedAction());
     });
 
     flutterTts.setCancelHandler(() {
-      print("Cancel");
-      store.dispatch(SetCancelAction());
+      print("cancel handler");
+      appStateStore.dispatch(SetCancelAction());
     });
 
     flutterTts.setPauseHandler(() {
-      print("Paused");
-      store.dispatch(SetPauseAction());
+      appStateStore.dispatch(SetPauseAction());
     });
 
     flutterTts.setContinueHandler(() {
-      print("Continued");
-      store.dispatch(SetContinueAction());
+      appStateStore.dispatch(SetContinueAction());
     });
 
     flutterTts.setErrorHandler((msg) {
-      print("error: $msg");
-      store.dispatch(SetErrorAction());
+      appStateStore.dispatch(SetErrorAction());
     });
-  }
-
-  Future _getDefaultEngine() async {
-    var engine = await flutterTts.getDefaultEngine;
-    if (engine != null) {
-      print(engine);
-    }
-  }
-
-  Future _getDefaultVoice() async {
-    var voice = await flutterTts.getDefaultVoice;
-    if (voice != null) {
-      print(voice);
-    }
   }
 
   AppState copyWith({
     double? volume,
     double? pitch,
     double? rate,
+    List<String>? storySentences,
+    int? sentenceIndex,
+    ChangeIndex? changeIndex,
     String? voiceText,
-    int? inputLength,
+    bool? isReadStory,
     TtsState? ttsState,
   }) {
     return AppState(
       volume: volume ?? this.volume,
       pitch: pitch ?? this.pitch,
       rate: rate ?? this.rate,
+      storySentences: storySentences ?? this.storySentences,
+      sentenceIndex: sentenceIndex ?? this.sentenceIndex,
+      changeIndex: changeIndex ?? this.changeIndex,
       voiceText: voiceText ?? this.voiceText,
-      inputLength: inputLength ?? this.inputLength,
+      isReadStory: isReadStory ?? this.isReadStory,
       ttsState: ttsState ?? this.ttsState,
     );
   }

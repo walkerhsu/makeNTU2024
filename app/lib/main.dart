@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:mapbox_search/mapbox_search.dart';
+import 'package:rpg_game/game/game_main/wait_result.dart';
 
-import 'quiz.dart';
 import 'quiz_result.dart';
 import 'welcome.dart';
 import 'game/game_settings/game_settings.dart';
@@ -28,11 +28,10 @@ class MyApp extends StatelessWidget {
       home: const WelcomePage(),
       routes: {
         '/home': (context) => const WelcomePage(),
-        '/quiz': (context) => const QuizPage(),
         '/result': (context) => const ResultPage(),
         '/game/settings': (context) => const GameSettingsPage(),
         '/game/main': (context) => const GameMainBuilder(),
-        '/game/wait_result': (context) => const QuizPage(),
+        '/game/wait_result': (context) => const WaitResultPage(),
       },
     );
   }

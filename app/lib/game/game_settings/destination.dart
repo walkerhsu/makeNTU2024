@@ -33,8 +33,8 @@ class _DestinationFieldState extends State<DestinationField> {
   bool get _showErrorBelowField => _hasValidationError;
 
   List<Map<String, dynamic>> filteredLocations = [];
-  late double destLat;
-  late double destLng;
+  double destLat = 0.0;
+  double destLng = 0.0;
 
   String? Function(String?)? get validator => (value) {
         if (value == null || value.isEmpty) {
