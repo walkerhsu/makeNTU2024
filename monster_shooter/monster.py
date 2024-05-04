@@ -11,7 +11,7 @@ def get_monster_info(monster_json, screen_width, screen_height):
         attack_time = 300 / monster["ATKSPD"]
         pic = pygame.image.load("./pictures/output.png")
         pos = (random.randint(0, screen_width - pic.get_rect().size[0]), random.randint(0, screen_height - pic.get_rect().size[1]))
-        speed = monster["MVSPD"]
+        speed = monster["MVSPD"] / 5
         monster_type = monster["TYPE"]
         monster_list.append(Monster(name, max_health, strength, attack_time, pic, pos, speed, monster_type))
     return monster_list

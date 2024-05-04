@@ -11,6 +11,7 @@ from gesture_predictor import GesturePredictor
 monsters_info_http = "http://10.10.2.97:8000/get_monsters_info"
 player_info_http = "http://10.10.2.97:8000/get_user_info"
 post_url = "http://10.10.2.97:8000/game_ended"
+battle_url = "http://10.10.2.97:8000/is_battle"
 
 def fetch_monster_info():
     monsters_info = req.get(monsters_info_http)
@@ -77,12 +78,13 @@ def main():
         if idle_flag:
             if fetch_count_down == 0:
                 update_player_info(player)
-                monster_json = fetch_monster_info()
-                if monster_json:
+                is_battle = req.get(battle_url)
+                print(is_battle.text)
+                if is_battle.text == "True":
+                    monster_json = fetch_monster_info()
                     monster_list = get_monster_info(monster_json, SCREEN_WIDTH, SCREEN_HEIGHT)
-                    if len(monster_list) > 0:
-                        cur_monster_index = 0
-                        idle_flag = False
+                    cur_monster_index = 0
+                    idle_flag = False
                 fetch_count_down = 60
             else:
                 fetch_count_down -= 1
@@ -92,7 +94,7 @@ def main():
                 player_pos = pos
                 player.aim_display(screen, player_pos)
                 if gesture == 'shoot':
-                    player.shoot_air(shoot_flag)
+                    player.shoot_air(shoot_flag, player_pos)
                     shoot_flag = False
                 else:
                     shoot_flag = True
