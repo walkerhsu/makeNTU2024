@@ -40,13 +40,14 @@ if camera_on:
 
 
 pygame.init()
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+SCREEN_WIDTH, SCREEN_HEIGHT = pygame.display.get_surface().get_size()
 pygame.display.set_caption('Monster Shooter')
 clock = pygame.time.Clock()
 
 def main():
     running = True
-    player = Player(*get_player_info())
+    player = Player(*get_player_info(), SCREEN_WIDTH, SCREEN_HEIGHT)
     shoot_flag = True
     fetch_count_down = 0
     monster_list = []
@@ -78,7 +79,7 @@ def main():
                 update_player_info(player)
                 monster_json = fetch_monster_info()
                 if monster_json:
-                    monster_list = get_monster_info(monster_json)
+                    monster_list = get_monster_info(monster_json, SCREEN_WIDTH, SCREEN_HEIGHT)
                     if len(monster_list) > 0:
                         cur_monster_index = 0
                         idle_flag = False
@@ -95,11 +96,11 @@ def main():
                     shoot_flag = False
                 else:
                     shoot_flag = True
-            player.display_info(screen)
+            player.display_info(screen, SCREEN_WIDTH, SCREEN_HEIGHT)
         else:
             monster = monster_list[cur_monster_index]
             if monster.is_alive():
-                monster.display(screen)
+                monster.display(screen, SCREEN_WIDTH, SCREEN_HEIGHT)
                 player.take_damage(monster.attack(player.cur_health))
                 if not player.is_alive():
                     idle_flag = True
@@ -114,14 +115,14 @@ def main():
                     continue
             if gesture == 'aim' or gesture == 'shoot':
                 player_pos = pos
-                monster.move(player_pos)
+                monster.move(player_pos, SCREEN_WIDTH, SCREEN_HEIGHT)
                 player.aim_display(screen, player_pos)
                 if gesture == 'shoot':
                     monster.take_damage(player.shoot(shoot_flag, monster.pos, monster.pic, player_pos, monster.monster_type, monster.weak_point_pos, monster.weak_point_size))
                     shoot_flag = False
                 else:
                     shoot_flag = True
-            player.display_info(screen)
+            player.display_info(screen, SCREEN_WIDTH, SCREEN_HEIGHT)
 
         pygame.display.flip()
 
