@@ -3,6 +3,7 @@ import 'package:flutter_redux/flutter_redux.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:quickalert/quickalert.dart';
 import 'package:redux/redux.dart';
+import 'package:rpg_game/game/game_main/userState/actions.dart';
 import 'package:rpg_game/game/game_main/userState/state.dart';
 import 'package:rpg_game/game/game_main/userState/store.dart';
 import 'package:rpg_game/game/game_main/userState/view_model.dart';
@@ -126,11 +127,9 @@ class _GameSettingsPageState extends State<GameSettingsPage> {
                         },
                       );
                       if (!mounted || !confirm) return;
-                      viewModel.destination = _destination!;
-                      viewModel.dstLat = _destLatLng!.latitude;
-                      viewModel.dstLng = _destLatLng!.longitude;
                       // viewModel.gameType = _gameType!;
-                      viewModel.gameType = '冒險';
+                      userStateStore.dispatch(SetDestinationAction(_destLatLng!.latitude, _destLatLng!.longitude, _destination!));
+                      userStateStore.dispatch(SetGameTypeAction("冒險"));
                       // ignore: use_build_context_synchronously
                       Navigator.popUntil(context, (route) => route.isFirst);
                       // ignore: use_build_context_synchronously

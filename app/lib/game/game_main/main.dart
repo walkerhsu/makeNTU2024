@@ -1,7 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
+import 'package:quickalert/quickalert.dart';
 import 'package:redux/redux.dart';
 import 'package:rpg_game/game/Components/progress_bar.dart';
+import 'package:rpg_game/game/fetch_request.dart';
 import 'package:rpg_game/game/game_main/story.dart';
 import 'package:rpg_game/game/game_main/ttsState/actions.dart';
 import 'package:rpg_game/game/game_main/ttsState/state.dart';
@@ -26,10 +30,17 @@ class GameMain extends StatefulWidget {
   State<GameMain> createState() => _GameMainState();
 }
 
-class _GameMainState extends State<GameMain> {
+class _GameMainState extends State<GameMain> with TickerProviderStateMixin {
+  late AnimationController _controller;
+  final Tween<double> _tween = Tween(begin: 2, end: 0);
+
   final SpeechToText _userSpeechToText = SpeechToText();
+  Timer? timer;
   bool _userSpeechEnabled = false;
   String _userLastWords = '';
+  int _cntDown = 3;
+  bool showCntNumber = false;
+
   final String language = "zh";
   final String locale = "zh-TW";
   List<String> sentences = [];
@@ -85,8 +96,7 @@ class _GameMainState extends State<GameMain> {
     }
     appStateStore.dispatch(SetCancelAction());
     appStateStore.dispatch(SetStorySentencesAction(['']));
-    Navigator.pop(context);
-    Navigator.pushNamed(context, '/game/wait_result');
+    Navigator.popAndPushNamed(context, '/game/main');
   }
 
   @override
@@ -96,6 +106,13 @@ class _GameMainState extends State<GameMain> {
     appStateStore.dispatch(SetStorySentencesAction(generateText(widget.story)));
     appStateStore.dispatch(SetSentenceIndexAction(0));
     appStateStore.dispatch(SpeakTextAction());
+  }
+
+  @override
+  void dispose() {
+    _userSpeechToText.stop();
+    timer?.cancel();
+    super.dispose();
   }
 
   /// This has to happen only once per app
@@ -137,7 +154,7 @@ class _GameMainState extends State<GameMain> {
         }, builder: (BuildContext context, TTSViewModel ttsViewModel) {
           return Scaffold(
               appBar: AppBar(
-                title: const Text('Game'),
+                title: const Text("Game"),
                 leading: IconButton(
                   icon: const Icon(Icons.home),
                   onPressed: () {
@@ -185,31 +202,127 @@ class _GameMainState extends State<GameMain> {
                     story: '${sentences[appStateStore.state.sentenceIndex]}。',
                     options: widget.options,
                   ),
-                  const SizedBox(height: 20),
-                  Text(
-                    _userSpeechToText.isListening
-                        ? _userLastWords
-                        : _userSpeechEnabled
-                            ? 'Tap the microphone to start listening...'
-                            : 'User Speech not available',
-                    style: TextStyle(
-                        fontSize: 16,
-                        color: Theme.of(context).textTheme.bodySmall!.color),
-                  )
+                  const SizedBox(height: 30),
+                  if (widget.options[0]["idx"] != -1)
+                    Text(
+                      _userSpeechToText.isListening
+                          ? _userLastWords
+                          : _userSpeechEnabled
+                              ? 'Tap the microphone to choose your option...'
+                              : 'User Speech not available',
+                      style: TextStyle(
+                          fontSize: 16,
+                          color: Theme.of(context).textTheme.bodySmall!.color),
+                    ),
+                  if (widget.options[0]["idx"] == -1 && !showCntNumber)
+                    Center(
+                      child: InkWell(
+                        onTap: () async {
+                          appStateStore.dispatch(StopSpeakAction());
+                          setState(() {
+                            showCntNumber = true;
+                            _controller = AnimationController(
+                                duration: const Duration(seconds: 1),
+                                vsync: this);
+                            _controller.repeat();
+                          });
+                          timer =
+                              Timer.periodic(const Duration(seconds: 1), (_) {
+                            setState(() {
+                              if (_cntDown > 0) {
+                                _cntDown--;
+                              } else {
+                                timer!.cancel();
+                                postHTTPResponse();
+                                QuickAlert.show(
+                                  context: context,
+                                  type: QuickAlertType.info,
+                                  text: "Battle is in progress...",
+                                  barrierDismissible: true,
+                                  showConfirmBtn: false,
+                                ).then((value) {
+                                  if (mounted && context.mounted) {
+                                    Navigator.popAndPushNamed(
+                                        context, "/game/wait_result");
+                                  }
+                                });
+                              }
+                            });
+                          });
+                          if (!mounted || !context.mounted) {
+                            return;
+                          }
+
+                          // Timer makePeriodicTimer(
+                          //   Duration duration,
+                          //   void Function(Timer timer) callback, {
+                          //   bool fireNow = false,
+                          // }) {
+                          //   var timer = Timer.periodic(duration, callback);
+                          //   if (fireNow) {
+                          //     callback(timer);
+                          //   }
+                          //   return timer;
+                          // }
+
+                          // _timer = makePeriodicTimer(const Duration(seconds: 1),
+                          //     (timer) {
+                          //   getBattleResult().then((value) {
+                          //     if (value == "playing") {
+                          //       QuickAlert.show(
+                          //         context: context,
+                          //         type: QuickAlertType.info,
+                          //         barrierDismissible: true,
+                          //         showConfirmBtn: false,
+                          //       );
+                          //     } else {
+                          //       Navigator.popAndPushNamed(
+                          //           context, "/game/main");
+                          //     }
+                          //   });
+                          // }, fireNow: true);
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: Colors.purple[100]!,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Text(
+                            "BATTLE",
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  if (showCntNumber && _cntDown > 0)
+                    ScaleTransition(
+                      scale: _tween.animate(_controller),
+                      child: Text(
+                        '$_cntDown',
+                        style: const TextStyle(fontSize: 60, color: Colors.red),
+                      ),
+                    )
                 ],
               ),
-              floatingActionButton: FloatingActionButton(
-                onPressed: () async {
-                  await appStateStore.dispatch(ttsViewModel.stop());
-                  _userSpeechToText.isNotListening
-                      ? _startListening()
-                      : _stopListening();
-                },
-                tooltip: 'Listen',
-                child: Icon(_userSpeechToText.isNotListening
-                    ? Icons.mic
-                    : Icons.mic_off),
-              ),
+              floatingActionButton: widget.options[0]["idx"] != -1
+                  ? FloatingActionButton(
+                      onPressed: () async {
+                        await appStateStore.dispatch(
+                            appStateStore.dispatch(StopSpeakAction()));
+                        _userSpeechToText.isNotListening
+                            ? _startListening()
+                            : _stopListening();
+                      },
+                      tooltip: 'Listen',
+                      child: Icon(_userSpeechToText.isNotListening
+                          ? Icons.mic
+                          : Icons.mic_off),
+                    )
+                  : null,
               floatingActionButtonLocation:
                   FloatingActionButtonLocation.miniCenterFloat);
         }));

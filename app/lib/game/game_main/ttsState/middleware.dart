@@ -27,6 +27,10 @@ void ttsMiddleware(
       IosTextToSpeechAudioCategory.playAndRecord,
       [IosTextToSpeechAudioCategoryOptions.defaultToSpeaker],
     );
+    print("speak");
+    print(store.state.storySentences);
+    print(store.state.sentenceIndex);
+    print(store.state.isPlaying);
     await flutterTts
         .speak(store.state.storySentences[store.state.sentenceIndex]);
 

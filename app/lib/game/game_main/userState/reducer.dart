@@ -13,9 +13,14 @@ UserState setUserStateReducer(UserState state, dynamic action) {
   } else if (action is SetOptionAction) {
     return state.copyWith(option: action.option);
   } else if (action is SetTimeAction) {
-    print("setTimeAction: ${action.totalTime} / ${action.currentTime}");
+    print("setTimeAction: ${action.currentTime} /${action.totalTime}");
     return state.copyWith(
         totalTime: action.totalTime, currentTime: action.currentTime);
+  } else if (action is SetTimerAction) {
+    return state.copyWith(timer: action.timer);
+  } else if (action is StopTimerAction) {
+    state.timer?.cancel();
+    return state.copyWith(timer: null);
   }
   return state;
 }

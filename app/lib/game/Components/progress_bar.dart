@@ -33,12 +33,16 @@ class ProgressBar extends StatefulWidget {
 
 class _ProgressBarState extends State<ProgressBar>
     with TickerProviderStateMixin {
-  late final Timer _timer;
   double iconWidth = 30;
+  Timer? _timer;
+  
   late final AnimationController _controller = AnimationController(
     duration: const Duration(milliseconds: 1000),
     vsync: this,
   )..repeat(reverse: true);
+
+
+
   @override
   void initState() {
     super.initState();
@@ -59,7 +63,7 @@ class _ProgressBarState extends State<ProgressBar>
   @override
   void dispose() {
     print("_timer canceling");
-    _timer.cancel();
+    _timer?.cancel();
     print("_timer canceled");
     _controller.dispose();
     super.dispose();
