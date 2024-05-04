@@ -6,7 +6,7 @@ import 'package:rpg_game/game/game_main/ttsState/actions.dart';
 import 'package:rpg_game/game/game_main/ttsState/store.dart';
 
 enum TtsState { playing, stopped, paused, continued }
-
+enum ChangeIndex { next, previous }
 class AppState {
   final FlutterTts flutterTts = FlutterTts();
   String? language;
@@ -16,8 +16,12 @@ class AppState {
   double rate;
   bool isCurrentLanguageInstalled = false;
 
+  List<String> storySentences;
+  int sentenceIndex;
+  ChangeIndex changeIndex;
   String voiceText;
-  int? inputLength;
+
+  bool isReadStory;
 
   TtsState ttsState;
 
@@ -33,29 +37,29 @@ class AppState {
 
   AppState({
     this.volume = 1.0,
-    this.pitch = 1.0,
+    this.pitch = 1.1,
     this.rate = 0.5,
+    this.storySentences = const [],
+    this.sentenceIndex = 0,
     this.voiceText = "",
-    this.inputLength = 0,
-    this.ttsState = TtsState.stopped,
+    this.isReadStory = true,
+    this.ttsState = TtsState.playing,
+    this.changeIndex = ChangeIndex.next,
   }) {
     Future.delayed(Duration.zero, () {
       appStateStore.dispatch(SetAwaitOptionsAction(true));
     });
-
-    if (isAndroid) {
-      _getDefaultEngine();
-      _getDefaultVoice();
-    }
     flutterTts.setStartHandler(() {
       appStateStore.dispatch(SetStartAction());
     });
 
     flutterTts.setCompletionHandler(() {
+      print("complete handler");
       appStateStore.dispatch(SetCompletedAction());
     });
 
     flutterTts.setCancelHandler(() {
+      print("cancel handler");
       appStateStore.dispatch(SetCancelAction());
     });
 
@@ -72,30 +76,26 @@ class AppState {
     });
   }
 
-  Future _getDefaultEngine() async {
-    var engine = await flutterTts.getDefaultEngine;
-    if (engine != null) {}
-  }
-
-  Future _getDefaultVoice() async {
-    var voice = await flutterTts.getDefaultVoice;
-    if (voice != null) {}
-  }
-
   AppState copyWith({
     double? volume,
     double? pitch,
     double? rate,
+    List<String>? storySentences,
+    int? sentenceIndex,
+    ChangeIndex? changeIndex,
     String? voiceText,
-    int? inputLength,
+    bool? isReadStory,
     TtsState? ttsState,
   }) {
     return AppState(
       volume: volume ?? this.volume,
       pitch: pitch ?? this.pitch,
       rate: rate ?? this.rate,
+      storySentences: storySentences ?? this.storySentences,
+      sentenceIndex: sentenceIndex ?? this.sentenceIndex,
+      changeIndex: changeIndex ?? this.changeIndex,
       voiceText: voiceText ?? this.voiceText,
-      inputLength: inputLength ?? this.inputLength,
+      isReadStory: isReadStory ?? this.isReadStory,
       ttsState: ttsState ?? this.ttsState,
     );
   }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:redux/redux.dart';
 import 'package:rpg_game/game/Components/progress_bar.dart';
@@ -26,65 +27,125 @@ class GameMain extends StatefulWidget {
 }
 
 class _GameMainState extends State<GameMain> {
-  final SpeechToText _speechToText = SpeechToText();
-  bool _speechEnabled = false;
-  String _lastWords = '';
+  final SpeechToText _userSpeechToText = SpeechToText();
+  bool _userSpeechEnabled = false;
+  String _userLastWords = '';
+  final String language = "zh";
+  final String locale = "zh-TW";
+  List<String> sentences = [];
 
-  String generateText(String story, List<Map<String, dynamic>> options) {
+  List<String> generateText(String story, List<Map<String, dynamic>> options) {
     String text = story;
-    text += " Now, please select an option from the following options! ";
-    for (int i = 0; i < options.length; i++) {
-      text += "Option ${idx2Str(options[i]["idx"])}: ${options[i]["option"]}. ";
-    }
-    return text;
+    // text += "現在，請從以下的選項進行選擇。";
+    // for (int i = 0; i < options.length; i++) {
+    //   text +=
+    //       "選項${idx2Str(options[i]["idx"], language)}： ${options[i]["option"]}。";
+    // }
+    sentences = text.split("。");
+    // split the last element from the list
+    sentences.removeLast();
+    print(sentences);
+    return sentences;
   }
 
-  void checkAnswer() {
-    if (_lastWords.toLowerCase() == "option one" ||
-        _lastWords.toLowerCase() == "option two" ||
-        _lastWords.toLowerCase() == "option three" ||
-        _lastWords.toLowerCase() == "option four") {
-      String newVoiceText = "Your choice is : $_lastWords}";
-      appStateStore.dispatch(SetVoiceTextAction(newVoiceText));
-      appStateStore.dispatch(SpeakTextAction(newVoiceText));
-    } else {
-      appStateStore.dispatch(
-          SetVoiceTextAction("Invalid option! Please select a valid option!"));
-      appStateStore.dispatch(
-          SpeakTextAction("Invalid option! Please select a valid option!"));
+  void checkAnswer() async {
+    print("user last words: $_userLastWords");
+    if (language == "zh") {
+      if (_userLastWords == "一" ||
+          _userLastWords == widget.options[0]["option"]) {
+        String newVoiceText = voice2str(widget.options[0], "zh");
+        appStateStore.dispatch(SetVoiceTextAction(newVoiceText));
+        await appStateStore.dispatch(SpeakTextAction());
+      } else if (_userLastWords == "二" ||
+          _userLastWords == widget.options[1]["option"]) {
+        String newVoiceText = voice2str(widget.options[1], "zh");
+        appStateStore.dispatch(SetVoiceTextAction(newVoiceText));
+        await appStateStore.dispatch(SpeakTextAction());
+      } else if (_userLastWords == "三" ||
+          _userLastWords == "山" ||
+          _userLastWords == widget.options[2]["option"]) {
+        String newVoiceText = voice2str(widget.options[2], "zh");
+        appStateStore.dispatch(SetVoiceTextAction(newVoiceText));
+        await appStateStore.dispatch(SpeakTextAction());
+      } else if (_userLastWords == "四" ||
+          _userLastWords == "是" ||
+          _userLastWords == widget.options[3]["option"]) {
+        String newVoiceText = voice2str(widget.options[3], "zh");
+        appStateStore.dispatch(SetVoiceTextAction(newVoiceText));
+        await appStateStore.dispatch(SpeakTextAction());
+      } else {
+        appStateStore.dispatch(SetVoiceTextAction("選擇錯誤，請重新選擇！"));
+        await appStateStore.dispatch(SpeakTextAction());
+      }
+    } else if (language == "en") {
+      if (_userLastWords.toLowerCase() == "one" ||
+          _userLastWords.toLowerCase() == widget.options[0]["option"]) {
+        String newVoiceText = voice2str(widget.options[0], "en");
+        appStateStore.dispatch(SetVoiceTextAction(newVoiceText));
+        await appStateStore.dispatch(SpeakTextAction());
+      } else if (_userLastWords.toLowerCase() == "two" ||
+          _userLastWords.toLowerCase() == widget.options[1]["option"]) {
+        String newVoiceText = voice2str(widget.options[1], "en");
+        appStateStore.dispatch(SetVoiceTextAction(newVoiceText));
+        await appStateStore.dispatch(SpeakTextAction());
+      } else if (_userLastWords.toLowerCase() == "three" ||
+          _userLastWords.toLowerCase() == widget.options[2]["option"]) {
+        String newVoiceText = voice2str(widget.options[2], "en");
+        appStateStore.dispatch(SetVoiceTextAction(newVoiceText));
+        await appStateStore.dispatch(SpeakTextAction());
+      } else if (_userLastWords.toLowerCase() == "four" ||
+          _userLastWords.toLowerCase() == widget.options[3]["option"]) {
+        String newVoiceText = voice2str(widget.options[3], "en");
+        appStateStore.dispatch(SetVoiceTextAction(newVoiceText));
+        await appStateStore.dispatch(SpeakTextAction());
+      } else {
+        appStateStore.dispatch(SetVoiceTextAction(
+            "Invalid option! Please select a valid option!"));
+        await appStateStore.dispatch(SpeakTextAction());
+      }
     }
+    appStateStore.dispatch(SetReadStoryAction(true));
+    appStateStore.dispatch(SetCancelAction());
   }
 
   @override
   void initState() {
     super.initState();
     _initSpeech();
+    appStateStore.dispatch(
+        SetStorySentencesAction(generateText(widget.story, widget.options)));
+    appStateStore.dispatch(SetReadStoryAction(true));
+    appStateStore.dispatch(SpeakTextAction());
   }
 
   /// This has to happen only once per app
   void _initSpeech() async {
-    _speechEnabled = await _speechToText.initialize();
-    setState(() {});
+    _userSpeechEnabled = await _userSpeechToText.initialize();
   }
 
   void _startListening() async {
-    print("start listening");
-    await _speechToText.listen(onResult: _onSpeechResult);
+    appStateStore.dispatch(SetReadStoryAction(false));
+    print("user mode start listening");
+    if (_userSpeechEnabled) {
+      print("_userSpeechEnabled true");
+      await _userSpeechToText.listen(
+          localeId: locale, onResult: _onSpeechResult);
+    }
   }
 
   void _stopListening() async {
-    print("stop listening");
-    print(_lastWords);
     checkAnswer();
-    setState(() => _lastWords = "");
-    await _speechToText.stop();
+    await _userSpeechToText.stop();
+    setState(() {
+      _userLastWords = "";
+    });
   }
 
   /// This is the callback that the SpeechToText plugin calls when
   /// the platform returns recognized words.
   void _onSpeechResult(SpeechRecognitionResult result) {
     setState(() {
-      _lastWords = result.recognizedWords;
+      _userLastWords = result.recognizedWords;
     });
   }
 
@@ -96,8 +157,6 @@ class _GameMainState extends State<GameMain> {
             converter: (Store<AppState> store) {
           return TTSViewModel.create(store);
         }, builder: (BuildContext context, TTSViewModel ttsViewModel) {
-          appStateStore.dispatch(
-              SetVoiceTextAction(generateText(widget.story, widget.options)));
           return Scaffold(
               appBar: AppBar(
                 title: const Text('Game'),
@@ -145,36 +204,34 @@ class _GameMainState extends State<GameMain> {
                     backgroundColor: Colors.black,
                   ),
                   StoryBody(
-                    story: widget.story,
+                    story: '${sentences[appStateStore.state.sentenceIndex]}。',
                     options: widget.options,
                   ),
                   const SizedBox(height: 20),
                   Text(
-                    _speechToText.isListening
-                        ? _lastWords
-                        // If listening isn't active but could be tell the user
-                        // how to start it, otherwise indicate that speech
-                        // recognition is not yet ready or not supported on
-                        // the target device
-                        : _speechEnabled
+                    _userSpeechToText.isListening
+                        ? _userLastWords
+                        : _userSpeechEnabled
                             ? 'Tap the microphone to start listening...'
-                            : 'Speech not available',
+                            : 'User Speech not available',
                     style: TextStyle(
-                        fontSize: 18,
+                        fontSize: 16,
                         color: Theme.of(context).textTheme.bodySmall!.color),
                   )
                 ],
               ),
               floatingActionButton: FloatingActionButton(
-                onPressed: () {
-                  appStateStore.dispatch(ttsViewModel.stop());
-                  _speechToText.isNotListening
+                onPressed: () async {
+                  await appStateStore.dispatch(ttsViewModel.stop());
+                  appStateStore.dispatch(SetSentenceIndexAction(0));
+                  _userSpeechToText.isNotListening
                       ? _startListening()
                       : _stopListening();
                 },
                 tooltip: 'Listen',
-                child: Icon(
-                    _speechToText.isNotListening ? Icons.mic : Icons.mic_off),
+                child: Icon(_userSpeechToText.isNotListening
+                    ? Icons.mic
+                    : Icons.mic_off),
               ),
               floatingActionButtonLocation:
                   FloatingActionButtonLocation.miniCenterFloat);

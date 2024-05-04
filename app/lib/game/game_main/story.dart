@@ -17,12 +17,18 @@ class StoryBody extends StatefulWidget {
 class _StoryBodyState extends State<StoryBody> {
   late final List<Map<String, dynamic>> options1_2;
   late final List<Map<String, dynamic>> options3_4;
+  late final bool haveOptions;
 
   @override
   void initState() {
     super.initState();
-    options1_2 = widget.options.sublist(0, 2);
-    options3_4 = widget.options.sublist(2, 4);
+    if (widget.options.length == 4) {
+      options1_2 = widget.options.sublist(0, 2);
+      options3_4 = widget.options.sublist(2, 4);
+      haveOptions = true;
+    } else {
+      haveOptions = false;
+    }
   }
 
   @override
@@ -35,26 +41,51 @@ class _StoryBodyState extends State<StoryBody> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-                color: const Color.fromARGB(255, 180, 180, 180) , borderRadius: BorderRadius.circular(15)),
+                color: const Color.fromARGB(255, 180, 180, 180),
+                borderRadius: BorderRadius.circular(15)),
             width: 400,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 MyCardText(
                   text: widget.story,
-                  maxLines: 50,
+                  fontSize: 20,
+                  maxLines: 5,
                 ),
                 const SizedBox(
                   height: 25,
                 ),
-                _buildOptionsRow(options1_2),
-                const SizedBox(
-                  height: 25,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    IconButton(
+                        onPressed: () async {
+                          if (appStateStore.state.sentenceIndex == 0) return;
+                          await appStateStore.dispatch(SetChangeIndexAction(ChangeIndex.previous));
+                          await appStateStore.dispatch(StopSpeakAction());
+                          // await appStateStore.dispatch(SetChangeIndexAction(ChangeIndex.next));
+                        },
+                        icon: const Icon(Icons.arrow_back_ios_outlined)),
+                    IconButton(
+                        onPressed: () async {
+                          if (appStateStore.state.sentenceIndex ==
+                              appStateStore.state.storySentences.length - 1) {
+                            return;
+                          }
+                          print("right");
+                          await appStateStore.dispatch(SetChangeIndexAction(ChangeIndex.next));
+                          await appStateStore.dispatch(StopSpeakAction());
+                          print("stopSpeakright");
+                        },
+                        icon: const Icon(
+                          Icons.arrow_forward_ios_outlined,
+                        )),
+                  ],
                 ),
-                _buildOptionsRow(options3_4),
-                const SizedBox(
-                  height: 25,
-                ),
+                if (haveOptions) _buildOptionsRow(options1_2),
+                if (haveOptions) const SizedBox(height: 25),
+                if (haveOptions) _buildOptionsRow(options3_4),
+                if (haveOptions) const SizedBox(height: 25),
               ],
             ),
           )
@@ -69,15 +100,13 @@ class _StoryBodyState extends State<StoryBody> {
       children: options
           .map((option) => InkWell(
               onTap: () {
-                print("tap on option ${option['idx']}");
                 // check if tts is playing or continued, then pause it
                 if ((appStateStore.state.ttsState == TtsState.playing) ||
                     (appStateStore.state.ttsState == TtsState.continued)) {
                   appStateStore.dispatch(StopSpeakAction());
-                  String newVoiceText =
-                      "Your choice is : option ${idx2Str(option['idx'])}";
+                  String newVoiceText = voice2str(option, "zh");
                   appStateStore.dispatch(SetVoiceTextAction(newVoiceText));
-                  appStateStore.dispatch(SpeakTextAction(newVoiceText));
+                  appStateStore.dispatch(SpeakTextAction());
                 }
                 // push the new route on the previous route
                 Navigator.pushNamed(context, '/game/wait_result');

@@ -2,10 +2,13 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
+import 'package:rpg_game/game/Components/loading.dart';
 import 'package:rpg_game/game/Components/progress_bar.dart';
+import 'package:rpg_game/game/game_main/story.dart';
 import 'package:rpg_game/game/game_main/userState/actions.dart';
 import 'package:rpg_game/game/game_main/userState/state.dart';
 import 'package:rpg_game/game/game_main/userState/store.dart';
+import 'package:rpg_game/game/generate_Story.dart';
 
 class WaitResultPage extends StatefulWidget {
   const WaitResultPage({super.key});
@@ -15,10 +18,6 @@ class WaitResultPage extends StatefulWidget {
 }
 
 class _WaitResultPageState extends State<WaitResultPage> {
-  Timer? timer = Timer.periodic(const Duration(seconds: 1), (Timer timer) {
-    userStateStore.dispatch(SetHealthAction(userStateStore.state.health - 1));
-  });
-
   @override
   Widget build(BuildContext context) {
     return StoreProvider<UserState>(
@@ -30,21 +29,28 @@ class _WaitResultPageState extends State<WaitResultPage> {
                 appBar: AppBar(
                   title: const Text('Waiting for result'),
                 ),
-                body: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      ProgressBar(
-                        width: MediaQuery.of(context).size.width * 0.8,
-                        height: 25,
-                        color: Colors.blue,
-                        backgroundColor: Colors.black,
-                      ),
-                      Text(userStateStore.state.health.toString(),
-                          style: TextStyle(fontSize: 30,
-                              color: Theme.of(context).textTheme.bodySmall!.color),),
-                    ],
-                  ),
+                body: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: <Widget>[
+                    ProgressBar(
+                      width: MediaQuery.of(context).size.width * 0.8,
+                      height: 25,
+                      color: Colors.blue,
+                      backgroundColor: Colors.black,
+                    ),
+                    FutureBuilder(
+                        future: getGPTResponse(
+                            userStateStore.state.destination,
+                            userStateStore.state.gameType),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const MyLoading();
+                          } else {
+                            return StoryBody(story: snapshot.data!["story"] as String, options: [{"": ""}] as List<Map<String, dynamic>>);
+                          }
+                        })
+                  ],
                 ),
               );
             }));
