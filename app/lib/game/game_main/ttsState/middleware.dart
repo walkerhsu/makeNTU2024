@@ -9,26 +9,10 @@ void ttsMiddleware(
   if (action is SetCompletedAction) {
     print(
         '${store.state.sentenceIndex} / ${store.state.storySentences.length - 1}');
-    if (store.state.isReadStory) {
-      if (store.state.changeIndex == ChangeIndex.next) {
-        if (store.state.sentenceIndex < store.state.storySentences.length - 1) {
-          store.dispatch(SetSentenceIndexAction(store.state.sentenceIndex + 1));
-          store.dispatch(SpeakTextAction());
-        } else {
-          store.dispatch(SetSentenceIndexAction(0));
-          store.dispatch(SetCancelAction());
-        }
-      } else {
-        if (store.state.sentenceIndex > 0) {
-          store.dispatch(SetSentenceIndexAction(store.state.sentenceIndex - 1));
-          store.dispatch(SpeakTextAction());
-        } else {
-          store.dispatch(
-              SetSentenceIndexAction(store.state.storySentences.length - 1));
-          store.dispatch(SetCancelAction());
-        }
-      }
-      store.dispatch(SetChangeIndexAction(ChangeIndex.next));
+    if (store.state.sentenceIndex < store.state.storySentences.length - 1 &&
+        !store.state.isStopped) {
+      store.dispatch(SetSentenceIndexAction(store.state.sentenceIndex + 1));
+      store.dispatch(SpeakTextAction());
     } else {
       store.dispatch(SetCancelAction());
     }
@@ -43,25 +27,15 @@ void ttsMiddleware(
       IosTextToSpeechAudioCategory.playAndRecord,
       [IosTextToSpeechAudioCategoryOptions.defaultToSpeaker],
     );
-    if (store.state.isReadStory) {
-      print(
-          "read sentence: ${store.state.storySentences[store.state.sentenceIndex]}");
-      await flutterTts
-          .speak(store.state.storySentences[store.state.sentenceIndex]);
-    } else {
-      print("read voiceText: ${store.state.voiceText}");
-      await flutterTts.speak(store.state.voiceText);
-    }
+    await flutterTts
+        .speak(store.state.storySentences[store.state.sentenceIndex]);
+
     // store.dispatch(SetStartAction());
   } else if (action is StopSpeakAction) {
     // Stop the text-to-speech operation
-    print("stop speak");
     var result = await flutterTts.stop();
-    print("stopped");
     if (result == 1) {
-      print("cancel");
       await store.dispatch(SetCancelAction());
-      print("cancelled");
     }
   } else if (action is PauseSpeakAction) {
     // Pause the text-to-speech operation

@@ -129,7 +129,8 @@ class _GameSettingsPageState extends State<GameSettingsPage> {
                       viewModel.destination = _destination!;
                       viewModel.dstLat = _destLatLng!.latitude;
                       viewModel.dstLng = _destLatLng!.longitude;
-                      viewModel.gameType = _gameType!;
+                      // viewModel.gameType = _gameType!;
+                      viewModel.gameType = '冒險';
                       // ignore: use_build_context_synchronously
                       Navigator.popUntil(context, (route) => route.isFirst);
                       // ignore: use_build_context_synchronously

@@ -17,9 +17,6 @@ AppState setTtsCallbackReducer(AppState state, dynamic action) {
   } else if (action is SetStartAction) {
     return state.copyWith(
         ttsState: TtsState.playing); // Toggle the speaking state
-  } else if (action is SetReadStoryAction) {
-    return state.copyWith(
-        isReadStory: action.isReadStory); // Toggle the speaking state
   } else if (action is SetStorySentencesAction) {
     return state.copyWith(
         storySentences: action.storySentences); // Toggle the speaking state
@@ -27,10 +24,6 @@ AppState setTtsCallbackReducer(AppState state, dynamic action) {
     print("set sentence index: ${action.sentenceIndex}");
     return state.copyWith(
         sentenceIndex: action.sentenceIndex); // Toggle the speaking state
-  } else if (action is SetChangeIndexAction) {
-    print("set change index: ${action.changeIndex}");
-    return state.copyWith(
-        changeIndex: action.changeIndex); // Set the changeIndex state
   }
   return state;
 }

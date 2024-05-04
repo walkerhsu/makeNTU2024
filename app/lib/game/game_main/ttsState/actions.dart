@@ -1,5 +1,3 @@
-import 'package:rpg_game/game/game_main/ttsState/state.dart';
-
 class ToggleSpeakAction {}
 class SetCompletedAction {}
 class SetCancelAction {}
@@ -30,14 +28,6 @@ class SetSentenceIndexAction {
   SetSentenceIndexAction(this.sentenceIndex);
 }
 
-class SetChangeIndexAction {
-  final ChangeIndex changeIndex;
-  SetChangeIndexAction(this.changeIndex);
-}
-class SetReadStoryAction {
-  final bool isReadStory;
-  SetReadStoryAction(this.isReadStory);
-}
 class SetStorySentencesAction {
   final List<String> storySentences;
   SetStorySentencesAction(this.storySentences);

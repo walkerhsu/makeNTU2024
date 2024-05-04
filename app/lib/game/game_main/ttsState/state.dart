@@ -6,7 +6,6 @@ import 'package:rpg_game/game/game_main/ttsState/actions.dart';
 import 'package:rpg_game/game/game_main/ttsState/store.dart';
 
 enum TtsState { playing, stopped, paused, continued }
-enum ChangeIndex { next, previous }
 class AppState {
   final FlutterTts flutterTts = FlutterTts();
   String? language;
@@ -18,10 +17,7 @@ class AppState {
 
   List<String> storySentences;
   int sentenceIndex;
-  ChangeIndex changeIndex;
   String voiceText;
-
-  bool isReadStory;
 
   TtsState ttsState;
 
@@ -42,9 +38,7 @@ class AppState {
     this.storySentences = const [],
     this.sentenceIndex = 0,
     this.voiceText = "",
-    this.isReadStory = true,
     this.ttsState = TtsState.playing,
-    this.changeIndex = ChangeIndex.next,
   }) {
     Future.delayed(Duration.zero, () {
       appStateStore.dispatch(SetAwaitOptionsAction(true));
@@ -82,9 +76,7 @@ class AppState {
     double? rate,
     List<String>? storySentences,
     int? sentenceIndex,
-    ChangeIndex? changeIndex,
     String? voiceText,
-    bool? isReadStory,
     TtsState? ttsState,
   }) {
     return AppState(
@@ -93,9 +85,7 @@ class AppState {
       rate: rate ?? this.rate,
       storySentences: storySentences ?? this.storySentences,
       sentenceIndex: sentenceIndex ?? this.sentenceIndex,
-      changeIndex: changeIndex ?? this.changeIndex,
       voiceText: voiceText ?? this.voiceText,
-      isReadStory: isReadStory ?? this.isReadStory,
       ttsState: ttsState ?? this.ttsState,
     );
   }
