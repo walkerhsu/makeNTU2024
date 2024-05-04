@@ -1,10 +1,10 @@
 from rembg import remove
 import cv2  
   
-input_path = './pictures/bullet_hole.png' 
-output_path = './pictures/bullet_hole.png'
+input_path = './pictures/camera.png' 
+output_path = './pictures/camera.png'
 input = cv2.imread(input_path)
-output = cv2.resize(input, (64, 64))
+output = cv2.resize(input, (128, 128))
 output = remove(output)
 cv2.imwrite(output_path, output)
 

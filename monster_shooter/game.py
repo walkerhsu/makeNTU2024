@@ -14,13 +14,22 @@ post_url = "http://10.10.2.97:8000/game_ended"
 battle_url = "http://10.10.2.97:8000/is_battle"
 
 def fetch_monster_info():
-    monsters_info = req.get(monsters_info_http)
-    return monsters_info.json()
+    try:
+        monsters_info = req.get(monsters_info_http)
+        return monsters_info.json()
+    except:
+        return []
 
 def update_player_info(player):
-    player_info = req.get(player_info_http)
+    try:
+        player_info = req.get(player_info_http)
+    except:
+        player.heal(0)
+        player.gain_strength(0)
+        player.gain_max_ammo(0)
+        player.gain_max_reload_time(0)
+        return
     player_info = player_info.json()[0]
-    print(player_info)
     player.heal(player_info["HP"])
     player.gain_strength(player_info["ATK"])
     player.gain_max_ammo(player_info["MAXAMMO"])
@@ -36,21 +45,20 @@ camera_on = True
 if camera_on:
     cap = cv2.VideoCapture(droid_cam_url) #If you are using DroidCam
     fps = cap.get(cv2.CAP_PROP_FPS)
-    print("fps:", fps)
     cap.set(cv2.CAP_PROP_FPS, FPS)
 
 
 pygame.init()
-screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
-SCREEN_WIDTH, SCREEN_HEIGHT = pygame.display.get_surface().get_size()
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption('Monster Shooter')
 clock = pygame.time.Clock()
 
 def main():
     running = True
-    player = Player(*get_player_info(), SCREEN_WIDTH, SCREEN_HEIGHT)
+    player = Player(*get_player_info())
     shoot_flag = True
     fetch_count_down = 0
+    picture_wait_time = 0
     monster_list = []
     cur_monster_index = 0
     idle_flag = True
@@ -73,16 +81,22 @@ def main():
             screen.fill(WHITE)
 
         if gesture == 'observe':
-            player.take_picture(frame)
+            if picture_wait_time == 0:
+                player.take_picture(frame)
+                picture_wait_time = 300
+        if picture_wait_time > 0:        
+            picture_wait_time -= 1
 
         if idle_flag:
             if fetch_count_down == 0:
                 update_player_info(player)
-                is_battle = req.get(battle_url)
-                print(is_battle.text)
+                try:
+                    is_battle = req.get(battle_url)
+                except:
+                    is_battle = "False"
                 if is_battle.text == "True":
                     monster_json = fetch_monster_info()
-                    monster_list = get_monster_info(monster_json, SCREEN_WIDTH, SCREEN_HEIGHT)
+                    monster_list = get_monster_info(monster_json)
                     cur_monster_index = 0
                     idle_flag = False
                 fetch_count_down = 60
@@ -94,15 +108,15 @@ def main():
                 player_pos = pos
                 player.aim_display(screen, player_pos)
                 if gesture == 'shoot':
-                    player.shoot_air(shoot_flag, player_pos)
+                    player.shoot_air(player_pos, shoot_flag)
                     shoot_flag = False
                 else:
                     shoot_flag = True
-            player.display_info(screen, SCREEN_WIDTH, SCREEN_HEIGHT)
+            player.display_info(screen, picture_wait_time)
         else:
             monster = monster_list[cur_monster_index]
             if monster.is_alive():
-                monster.display(screen, SCREEN_WIDTH, SCREEN_HEIGHT)
+                monster.display(screen)
                 player.take_damage(monster.attack(player.cur_health))
                 if not player.is_alive():
                     idle_flag = True
@@ -117,14 +131,14 @@ def main():
                     continue
             if gesture == 'aim' or gesture == 'shoot':
                 player_pos = pos
-                monster.move(player_pos, SCREEN_WIDTH, SCREEN_HEIGHT)
+                monster.move(player_pos)
                 player.aim_display(screen, player_pos)
                 if gesture == 'shoot':
-                    monster.take_damage(player.shoot(shoot_flag, monster.pos, monster.pic, player_pos, monster.monster_type, monster.weak_point_pos, monster.weak_point_size))
+                    monster.take_damage(player.shoot(shoot_flag, monster, player_pos))
                     shoot_flag = False
                 else:
                     shoot_flag = True
-            player.display_info(screen, SCREEN_WIDTH, SCREEN_HEIGHT)
+            player.display_info(screen, picture_wait_time)
 
         pygame.display.flip()
 
