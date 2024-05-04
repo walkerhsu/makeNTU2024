@@ -7,13 +7,14 @@ def get_monster_info():
     max_health = 30
     strength = 10
     attack_time = 200
-    pic = pygame.image.load("./pictures/monster.png")
+    pic = pygame.image.load("./pictures/output.png")
     pos = (random.randint(0, SCREEN_WIDTH - pic.get_rect().size[0]), random.randint(0, SCREEN_HEIGHT - pic.get_rect().size[1]))
-    speed = 3
-    return name, max_health, strength, attack_time, pic, pos, speed
+    speed = 1
+    monster_type = 0
+    return name, max_health, strength, attack_time, pic, pos, speed, monster_type
 
 class Monster:
-    def __init__(self, name, max_health, strength, attack_time, pic, pos, speed):
+    def __init__(self, name, max_health, strength, attack_time, pic, pos, speed, monster_type):
         self.name = name
         self.max_health = max_health
         self.cur_health = max_health
@@ -25,7 +26,12 @@ class Monster:
         self.pic = pic
         self.pos = pos
         self.speed = speed
-        # self.damage_sfx = pygame.mixer.Sound("characterpain_sfx.mp3")
+        self.monster_type = monster_type
+        self.weak_point_size_min = 10
+        self.weak_point_size_max = 30
+        self.weak_point_size = 10
+        #random weak point position on the monster
+        self.weak_point_pos = (random.randint(self.pos[0] + 50, self.pos[0] + self.pic.get_rect().size[0] - 50), random.randint(self.pos[1] + 50, self.pos[1] + self.pic.get_rect().size[1] - 50))
 
     def is_on(self):
         return True
@@ -41,17 +47,24 @@ class Monster:
 
     def take_damage(self, damage):
         if damage > 0:
-            # self.damage_sfx.play()
             self.cur_health -= damage
+
 
     def is_alive(self):
         return self.cur_health > 0
     
     def display(self, screen):
         screen.blit(self.pic, self.pos)
-        pygame.draw.rect(screen, RED, (self.pos[0] + int(self.pic.get_rect().size[0] / 2 - self.health_bar_len / 2), self.pos[1], self.cur_health / self.health_ratio, int(SCREEN_HEIGHT / 32)))
-        pygame.draw.rect(screen, BLACK, (self.pos[0] + int(self.pic.get_rect().size[0] / 2 - self.health_bar_len / 2), self.pos[1], self.health_bar_len, int(SCREEN_HEIGHT / 32)), 4)
-
+        pygame.draw.rect(screen, RED, (self.pos[0] + int(self.pic.get_rect().size[0] / 2 - self.health_bar_len / 2), self.pos[1] - 15, self.cur_health / self.health_ratio, int(SCREEN_HEIGHT / 32)))
+        pygame.draw.rect(screen, BLACK, (self.pos[0] + int(self.pic.get_rect().size[0] / 2 - self.health_bar_len / 2), self.pos[1] - 15, self.health_bar_len, int(SCREEN_HEIGHT / 32)), 4)
+        #draw weak point that will change size
+        if self.monster_type == 1:
+            if self.weak_point_size <= self.weak_point_size_max and self.weak_point_size >= self.weak_point_size_min:
+                self.weak_point_size += 0.2
+            else:
+                self.weak_point_size = self.weak_point_size_min
+            pygame.draw.circle(screen, GREEN, self.weak_point_pos, self.weak_point_size, 3)
+        
     def move(self, player_pos):
         if self.pos[0] + self.pic.get_rect().size[0] < SCREEN_WIDTH and self.pos[1] + self.pic.get_rect().size[0] < SCREEN_HEIGHT and self.pos[0] > 0 and self.pos[1] > 0:
             if player_pos[0] >= self.pos[0] and player_pos[0] <= self.pos[0] + self.pic.get_rect().size[0]:

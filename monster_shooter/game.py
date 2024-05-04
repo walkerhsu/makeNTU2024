@@ -6,7 +6,7 @@ from monster import Monster, get_monster_info
 from player import Player, get_player_info
 from setting import *
 
-droid_cam_url = "http://192.168.50.179:4747/video" #If you are using DroidCam
+droid_cam_url = "http://10.10.2.250:4747/video" #If you are using DroidCam
 
 camera_on = True
 if camera_on:
