@@ -59,7 +59,6 @@ class Monster:
         screen.blit(self.pic, self.pos)
         pygame.draw.rect(screen, RED, (self.pos[0] + int(self.pic.get_rect().size[0] / 2 - self.health_bar_len / 2), self.pos[1] - 15, self.cur_health / self.health_ratio, int(SCREEN_HEIGHT / 32)))
         pygame.draw.rect(screen, BLACK, (self.pos[0] + int(self.pic.get_rect().size[0] / 2 - self.health_bar_len / 2), self.pos[1] - 15, self.health_bar_len, int(SCREEN_HEIGHT / 32)), 4)
-        #draw weak point that will change size
         if self.monster_type == 1:
             if self.weak_point_size <= self.weak_point_size_max and self.weak_point_size >= self.weak_point_size_min:
                 self.weak_point_size += 0.2
@@ -68,16 +67,16 @@ class Monster:
             pygame.draw.circle(screen, GREEN, self.weak_point_pos, self.weak_point_size, 3)
         
     def move(self, player_pos):
-        if self.pos[0] + self.pic.get_rect().size[0] < SCREEN_WIDTH and self.pos[1] + self.pic.get_rect().size[0] < SCREEN_HEIGHT and self.pos[0] > 0 and self.pos[1] > 0:
-            if player_pos[0] >= self.pos[0] and player_pos[0] <= self.pos[0] + self.pic.get_rect().size[0]:
-                if player_pos[1] >= self.pos[1] and player_pos[1] <= self.pos[1] + self.pic.get_rect().size[1]:
-                    if player_pos[0] > self.pos[0] + self.pic.get_rect().size[0] / 2:
-                        self.pos = (self.pos[0] - self.speed, self.pos[1])
-                    else:
-                        self.pos = (self.pos[0] + self.speed, self.pos[1])
-                    if player_pos[1] > self.pos[1] + self.pic.get_rect().size[1] / 2:
-                        self.pos = (self.pos[0], self.pos[1] - self.speed)
-                    else:
-                        self.pos = (self.pos[0], self.pos[1] + self.speed)
+        if (self.pos[0] + self.pic.get_rect().size[0] < SCREEN_WIDTH and self.pos[1] + self.pic.get_rect().size[0] < SCREEN_HEIGHT and self.pos[0] > 0 and self.pos[1] > 0
+            and player_pos[0] >= self.pos[0] and player_pos[0] <= self.pos[0] + self.pic.get_rect().size[0]
+            and player_pos[1] >= self.pos[1] and player_pos[1] <= self.pos[1] + self.pic.get_rect().size[1]):
+            if player_pos[0] > self.pos[0] + self.pic.get_rect().size[0] / 2:
+                self.pos = (self.pos[0] - self.speed, self.pos[1])
+            else:
+                self.pos = (self.pos[0] + self.speed, self.pos[1])
+            if player_pos[1] > self.pos[1] + self.pic.get_rect().size[1] / 2:
+                self.pos = (self.pos[0], self.pos[1] - self.speed)
+            else:
+                self.pos = (self.pos[0], self.pos[1] + self.speed)
     
 
