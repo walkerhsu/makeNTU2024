@@ -2,16 +2,30 @@ import pygame
 import random
 from setting import *
 
-def get_monster_info():
-    name = "Monster"
-    max_health = 30
-    strength = 10
-    attack_time = 200
-    pic = pygame.image.load("./pictures/output.png")
-    pos = (random.randint(0, SCREEN_WIDTH - pic.get_rect().size[0]), random.randint(0, SCREEN_HEIGHT - pic.get_rect().size[1]))
-    speed = 1
-    monster_type = 0
-    return name, max_health, strength, attack_time, pic, pos, speed, monster_type
+def get_monster_info(monster_json):
+    monster_list = []
+    for monster in monster_json:
+        name = monster["name"]
+        max_health = monster["HP"]
+        strength = monster["ATK"]
+        attack_time = 300 / monster["ATKSPD"]
+        pic = pygame.image.load("./pictures/output.png")
+        pos = (random.randint(0, SCREEN_WIDTH - pic.get_rect().size[0]), random.randint(0, SCREEN_HEIGHT - pic.get_rect().size[1]))
+        speed = monster["MVSPD"]
+        monster_type = monster["TYPE"]
+        monster_list.append(Monster(name, max_health, strength, attack_time, pic, pos, speed, monster_type))
+    return monster_list
+
+# def get_monster_info():
+#     name = "Monster"
+#     max_health = 30
+#     strength = 10
+#     attack_time = 200
+#     pic = pygame.image.load("./pictures/output.png")
+#     pos = (random.randint(0, SCREEN_WIDTH - pic.get_rect().size[0]), random.randint(0, SCREEN_HEIGHT - pic.get_rect().size[1]))
+#     speed = 1
+#     monster_type = 0
+#     return name, max_health, strength, attack_time, pic, pos, speed, monster_type
 
 class Monster:
     def __init__(self, name, max_health, strength, attack_time, pic, pos, speed, monster_type):
@@ -28,9 +42,8 @@ class Monster:
         self.speed = speed
         self.monster_type = monster_type
         self.weak_point_size_min = 10
-        self.weak_point_size_max = 30
+        self.weak_point_size_max = 40
         self.weak_point_size = 10
-        #random weak point position on the monster
         self.weak_point_pos = (random.randint(self.pos[0] + 50, self.pos[0] + self.pic.get_rect().size[0] - 50), random.randint(self.pos[1] + 50, self.pos[1] + self.pic.get_rect().size[1] - 50))
 
     def is_on(self):
