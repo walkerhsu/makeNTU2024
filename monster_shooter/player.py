@@ -46,7 +46,7 @@ class Player:
             self.bullet_pos = player_pos
             self.ammo -= 1
             if player_pos[0] >= monster.pos[0] and player_pos[0] <= monster.pos[0] + monster.pic.get_rect().size[0] and player_pos[1] >= monster.pos[1] and player_pos[1] <= monster.pos[1] + monster.pic.get_rect().size[1]:
-                if monster.type == 0:
+                if monster.monster_type == 0:
                     return self.strength
                 else:
                     if player_pos[0] >= monster.weak_point_pos[0] and player_pos[0] <= monster.weak_point_pos[0] + monster.weak_point_size and player_pos[1] >= monster.weak_point_pos[1] and player_pos[1] <= monster.weak_point_pos[1] + monster.weak_point_size:
@@ -89,7 +89,7 @@ class Player:
         pygame.draw.rect(screen, RED, (self.health_pic.get_rect().size[0] + 10, 10 + self.health_pic.get_rect().size[1]/2 - int(SCREEN_HEIGHT / 64) , self.cur_health / self.health_ratio, int(SCREEN_HEIGHT / 32)))
         pygame.draw.rect(screen, BLACK, (self.health_pic.get_rect().size[0] + 10, 10 + self.health_pic.get_rect().size[1]/2 - int(SCREEN_HEIGHT / 64) , self.cur_health / self.health_ratio, int(SCREEN_HEIGHT / 32)), 4)
         screen.blit(self.strength_pic, (10, 20 + self.health_pic.get_rect().size[1]))
-        atk_text = font.render(f"{self.strength}", True, BLUE)
+        atk_text = font.render(f"{self.strength}", True, GREEN)
         screen.blit(atk_text, (10 + self.strength_pic.get_rect().size[0] + 10, 20 + self.health_pic.get_rect().size[1] + self.strength_pic.get_rect().size[1]/2 - atk_text.get_height()/2))
         if self.ammo == 0:
             self.reload_time -= 1
