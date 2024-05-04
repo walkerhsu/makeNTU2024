@@ -1,10 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:quickalert/quickalert.dart';
 import 'package:rpg_game/game/Components/loading.dart';
 import 'package:rpg_game/game/Components/progress_bar.dart';
-import 'package:rpg_game/game/game_main/main.dart';
-import 'package:rpg_game/game/game_main/userState/store.dart';
 import 'package:rpg_game/game/fetch_request.dart';
 
 class WaitResultPage extends StatefulWidget {
@@ -24,7 +23,27 @@ class _WaitResultPageState extends State<WaitResultPage> {
       getBattleResult().then((value) {
         if (value != "playing") {
           timer.cancel();
-          Navigator.popAndPushNamed(context, "/game/main");
+          if (value == "win") {
+            QuickAlert.show(
+              context: context,
+              type: QuickAlertType.success,
+              text: "You win! Let's proceed the story!",
+            ).then((value) {
+              if (mounted && context.mounted) {
+                Navigator.popAndPushNamed(context, "/game/main");
+              }
+            });
+          } else {
+            QuickAlert.show(
+              context: context,
+              type: QuickAlertType.error,
+              text: "You lose~~ QAQ Let's continue the story!",
+            ).then((value) {
+              if (mounted && context.mounted) {
+                Navigator.popAndPushNamed(context, "/game/main");
+              }
+            });
+          }
         }
       });
     });

@@ -61,25 +61,25 @@ class _StoryBodyState extends State<StoryBody> {
                   children: [
                     IconButton(
                         onPressed: () async {
-                          if (appStateStore.state.sentenceIndex == 0) {
+                          if (AppStateStore.state.sentenceIndex == 0) {
                             return;
                           }
-                          await appStateStore.dispatch(SetSentenceIndexAction(
-                              appStateStore.state.sentenceIndex - 1));
-                          await appStateStore.dispatch(StopSpeakAction());
-                          // await appStateStore.dispatch(SpeakTextAction());
+                          await AppStateStore.dispatch(SetSentenceIndexAction(
+                              AppStateStore.state.sentenceIndex - 1));
+                          await AppStateStore.dispatch(StopSpeakAction());
+                          // await AppStateStore.dispatch(SpeakTextAction());
                         },
                         icon: const Icon(Icons.arrow_back_ios_outlined)),
                     IconButton(
                         onPressed: () async {
-                          if (appStateStore.state.sentenceIndex ==
-                              appStateStore.state.storySentences.length - 1) {
+                          if (AppStateStore.state.sentenceIndex ==
+                              AppStateStore.state.storySentences.length - 1) {
                             return;
                           }
-                          await appStateStore.dispatch(SetSentenceIndexAction(
-                              appStateStore.state.sentenceIndex + 1));
-                          await appStateStore.dispatch(StopSpeakAction());
-                          // await appStateStore.dispatch(SpeakTextAction());
+                          await AppStateStore.dispatch(SetSentenceIndexAction(
+                              AppStateStore.state.sentenceIndex + 1));
+                          await AppStateStore.dispatch(StopSpeakAction());
+                          // await AppStateStore.dispatch(SpeakTextAction());
                         },
                         icon: const Icon(
                           Icons.arrow_forward_ios_outlined,
@@ -87,16 +87,16 @@ class _StoryBodyState extends State<StoryBody> {
                   ],
                 ),
                 if (haveOptions &&
-                    appStateStore.state.sentenceIndex ==
-                        appStateStore.state.storySentences.length - 1)
+                    AppStateStore.state.sentenceIndex ==
+                        AppStateStore.state.storySentences.length - 1)
                   _buildOptionsRow(options1_2),
                 if (haveOptions &&
-                    appStateStore.state.sentenceIndex ==
-                        appStateStore.state.storySentences.length - 1)
+                    AppStateStore.state.sentenceIndex ==
+                        AppStateStore.state.storySentences.length - 1)
                   const SizedBox(height: 25),
                 if (haveOptions &&
-                    appStateStore.state.sentenceIndex ==
-                        appStateStore.state.storySentences.length - 1)
+                    AppStateStore.state.sentenceIndex ==
+                        AppStateStore.state.storySentences.length - 1)
                   _buildOptionsRow(options3_4),
                 const SizedBox(height: 25),
               ],
@@ -114,13 +114,13 @@ class _StoryBodyState extends State<StoryBody> {
           .map((option) => InkWell(
               onTap: () {
                 // check if tts is playing or continued, then pause it
-                if ((appStateStore.state.ttsState == TtsState.playing) ||
-                    (appStateStore.state.ttsState == TtsState.continued)) {
-                  appStateStore.dispatch(StopSpeakAction());
+                if ((AppStateStore.state.ttsState == TtsState.playing) ||
+                    (AppStateStore.state.ttsState == TtsState.continued)) {
+                  AppStateStore.dispatch(StopSpeakAction());
                 }
                 // push the new route on the previous route
                 userStateStore.dispatch(SetOptionAction(option['option']));
-                appStateStore.dispatch(SetStorySentencesAction(['']));
+                AppStateStore.dispatch(SetStorySentencesAction(['']));
                 Navigator.popAndPushNamed(context, '/game/main');
               },
               child: MyCardText(

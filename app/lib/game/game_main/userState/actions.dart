@@ -20,6 +20,12 @@ class SetOptionAction {
   SetOptionAction(this.option);
 }
 
+class SetHTTPAction {
+  final String action;
+
+  SetHTTPAction(this.action);
+}
+
 class SetTimeAction {
   final double totalTime;
   final double currentTime;
