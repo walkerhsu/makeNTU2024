@@ -1,6 +1,17 @@
 # Prompt Engineering
 ## outline.py
 `python3 outline.py > outline.json`
+output format:
+```
+{
+    "introduction": the introduction of this story,
+    "outline": {
+        "beginning": [] two stages of story and one stage of battle,
+        "middle": [] two stages of story and one stage of battle,
+        "ending": [] two stages of story and one stage of final battle
+    }
+}
+```
 ## story.py
 input format:
 ```

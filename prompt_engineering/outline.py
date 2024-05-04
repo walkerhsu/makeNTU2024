@@ -9,7 +9,7 @@ thread = client.beta.threads.create()
 message = client.beta.threads.messages.create(
   thread_id=thread.id,
   role="user",
-  content="生成文字冒險遊戲大綱。主軸：勇者拯救公主。",
+  content='{"Type":"勇者救公主", "Starting Point":"松山文創園區", "Ending Point":"國立台灣大學"}',
 )
 
 run = client.beta.threads.runs.create_and_poll(
