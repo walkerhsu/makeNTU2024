@@ -1,3 +1,5 @@
+import 'dart:async';
+
 class UserState {
   String destination;
   double dstLat;
@@ -6,6 +8,7 @@ class UserState {
   String option;
   double totalTime;
   double currentTime;
+  Timer? timer;
 
   UserState({
     this.destination = "台北",
@@ -15,6 +18,7 @@ class UserState {
     this.option = "",
     this.totalTime = 0.1,
     this.currentTime = 0.1,
+    this.timer,
   });
 
   UserState copyWith({
@@ -25,6 +29,7 @@ class UserState {
     String? option,
     double? totalTime,
     double? currentTime,
+    Timer? timer,
   }) {
     return UserState(
       destination: destination ?? this.destination,
@@ -34,6 +39,7 @@ class UserState {
       option: option ?? this.option,
       totalTime: totalTime ?? this.totalTime,
       currentTime: currentTime ?? this.currentTime,
+      timer: timer ?? this.timer,
     );
   }
 }

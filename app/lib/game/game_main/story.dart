@@ -54,16 +54,18 @@ class _StoryBodyState extends State<StoryBody> {
                   maxLines: 5,
                 ),
                 const SizedBox(
-                  height: 25,
+                  height: 5,
                 ),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     IconButton(
                         onPressed: () async {
-                          if (appStateStore.state.sentenceIndex == 0) return;
-                          await appStateStore.dispatch(SetSentenceIndexAction
-                              (appStateStore.state.sentenceIndex - 1));
+                          if (appStateStore.state.sentenceIndex == 0) {
+                            return;
+                          }
+                          await appStateStore.dispatch(SetSentenceIndexAction(
+                              appStateStore.state.sentenceIndex - 1));
                           await appStateStore.dispatch(StopSpeakAction());
                           // await appStateStore.dispatch(SpeakTextAction());
                         },
@@ -74,8 +76,8 @@ class _StoryBodyState extends State<StoryBody> {
                               appStateStore.state.storySentences.length - 1) {
                             return;
                           }
-                          await appStateStore.dispatch(SetSentenceIndexAction
-                              (appStateStore.state.sentenceIndex + 1));
+                          await appStateStore.dispatch(SetSentenceIndexAction(
+                              appStateStore.state.sentenceIndex + 1));
                           await appStateStore.dispatch(StopSpeakAction());
                           // await appStateStore.dispatch(SpeakTextAction());
                         },
@@ -84,10 +86,19 @@ class _StoryBodyState extends State<StoryBody> {
                         )),
                   ],
                 ),
-                if (haveOptions) _buildOptionsRow(options1_2),
-                if (haveOptions) const SizedBox(height: 25),
-                if (haveOptions) _buildOptionsRow(options3_4),
-                if (haveOptions) const SizedBox(height: 25),
+                if (haveOptions &&
+                    appStateStore.state.sentenceIndex ==
+                        appStateStore.state.storySentences.length - 1)
+                  _buildOptionsRow(options1_2),
+                if (haveOptions &&
+                    appStateStore.state.sentenceIndex ==
+                        appStateStore.state.storySentences.length - 1)
+                  const SizedBox(height: 25),
+                if (haveOptions &&
+                    appStateStore.state.sentenceIndex ==
+                        appStateStore.state.storySentences.length - 1)
+                  _buildOptionsRow(options3_4),
+                const SizedBox(height: 25),
               ],
             ),
           )
@@ -110,7 +121,7 @@ class _StoryBodyState extends State<StoryBody> {
                 // push the new route on the previous route
                 userStateStore.dispatch(SetOptionAction(option['option']));
                 appStateStore.dispatch(SetStorySentencesAction(['']));
-                Navigator.pushNamed(context, '/game/wait_result');
+                Navigator.popAndPushNamed(context, '/game/main');
               },
               child: MyCardText(
                 width: 130,

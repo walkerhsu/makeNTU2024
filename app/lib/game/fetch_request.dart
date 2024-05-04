@@ -3,43 +3,26 @@ import 'package:http/http.dart' as http;
 
 Future<Map<String, dynamic>> getHTTPResponse(
     String destination, String gameType,
-    {String option = ""}) async {
+    {String option = "", String start = "松菸"}) async {
   // Get the response from a certain http request
   String endpoint = "";
   if (option == "") {
     endpoint =
-        "http://10.10.2.97:8000/create_story??category=$gameType&dest=$destination";
+        "http://10.10.2.97:8000/create_story?category=$gameType&dest=$destination&start=$start";
     print(endpoint);
   } else {
     endpoint = "http://10.10.2.97:8000/story_response?choice=$option";
     print(endpoint);
   }
-  // temp result
-  // TODO: Remove this line
-  bool test = false;
-  if (test) {
-    print(option);
-    if (option == "") {
-      String story =
-          "在古老的東方王國，一場神秘的詛咒籠罩了整個城市。你是一名年輕的武士，被召喚前來解開這場詛咒的謎團。傳說中，唯有尋得神聖的水晶鑰匙才能解除詛咒。當你踏入城市，四條路徑展開在你面前：向神祕的龍族求助，探索古老的地下墓穴，尋找智慧的仙人，或者冒險闖蕩荒蕪之地。";
-      List<Map<String, dynamic>> options = [
-        {"idx": 1, "option": "向神祕的龍族求助"},
-        {"idx": 2, "option": "探索古老的地下墓穴"},
-        {"idx": 3, "option": "尋找智慧的仙人"},
-        {"idx": 4, "option": "冒險闖蕩荒蕪之地"},
-      ];
-      Map<String, dynamic> data = {'story': story, 'options': options};
-      return data; // Return the generated response}
-    } else {
-      String story =
-          "年輕武士踏入城市，選擇尋求龍族的幫助。在龍族的寶藏中，他發現了水晶鑰匙，但龍族卻要求他為此付出代價。武士決定勇敢地面對，最終通過考驗，得到了鑰匙。解除詛咒後，城市重獲生機。武士成為英雄，與龍族結下永久的友誼，共同守護著古老的東方王國。";
-      List<Map<String, dynamic>> options = [
-        {"": ""}
-      ];
-      Map<String, dynamic> data = {'story': story, 'options': options};
-      return data; // Return the generated response
-    }
-  }
+
+  return {
+    'story':
+        "在一個遙遠的地方，有一隻小貓，牠的名字叫做米克。他是一隻非常可愛的小貓，總是在家裡的陽台上曬太陽。有一天，米克決定要去探險，於是他走出了家門，開始了他的冒險之旅。",
+    'options': [
+      {"idx": -1, "option": "error"}
+    ]
+  };
+
   // Send POST request to OpenAI API
   var response = await http.get(
     Uri.parse(endpoint),
@@ -59,7 +42,7 @@ Future<Map<String, dynamic>> getHTTPResponse(
     if ((responseData["options"] as List).isEmpty) {
       print("empty");
       options = [
-        {"": ""}
+        {"idx": -1, "option": "error"}
       ];
     }
     for (int i = 0; i < responseData["options"].length; i++) {
@@ -69,7 +52,50 @@ Future<Map<String, dynamic>> getHTTPResponse(
       'story': responseData["story"],
       'options': options
     };
+
     return data; // Return the generated response
+  } else {
+    // If the request failed, return an error message
+    throw Exception('Failed to get response from Server');
+  }
+}
+
+Future<void> postHTTPResponse() async {
+  // Post the response to a certain http request
+  String endpoint = "http://10.10.2.97:8000/ready_battle";
+  print(endpoint);
+
+  var response = await http.post(
+    Uri.parse(endpoint),
+    headers: <String, String>{
+      'Content-Type': 'application/json',
+    },
+  );
+  if (response.statusCode == 200) {
+    // If the request was successful, parse the response JSON
+    print("Success");
+  } else {
+    // If the request failed, return an error message
+    throw Exception('Failed to get response from Server');
+  }
+}
+
+Future<String> getBattleResult() async {
+  // Get the response from a certain http request
+  String endpoint = "http://10.10.2.97:8000/game_is_ended";
+  print(endpoint);
+  var response = await http.get(
+    Uri.parse(endpoint),
+    headers: <String, String>{
+      'Content-Type': 'application/json',
+    },
+  );
+  if (response.statusCode == 200) {
+    // If the request was successful, parse the response JSON
+    String responseData = response.body;
+    print(responseData);
+    print(responseData.runtimeType);
+    return responseData; // Return the generated response
   } else {
     // If the request failed, return an error message
     throw Exception('Failed to get response from Server');

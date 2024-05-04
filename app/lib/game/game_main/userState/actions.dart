@@ -1,3 +1,5 @@
+import 'dart:async';
+
 class SetDestinationAction {
   final double lat;
   final double lng;
@@ -24,3 +26,11 @@ class SetTimeAction {
 
   SetTimeAction(this.totalTime, this.currentTime);
 }
+
+class SetTimerAction {
+  final Timer timer;
+
+  SetTimerAction(this.timer);
+}
+
+class StopTimerAction {}
