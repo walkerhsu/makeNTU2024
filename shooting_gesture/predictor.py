@@ -8,7 +8,7 @@ from collections import Counter
 
 
 class Predictor:
-    def __init__(self, pos_k=7, gc_k=5):
+    def __init__(self, pos_k=7, gc_k=5, aim_k = 9):
         self.shooting_model = Model()
         model_path = os.path.join(os.path.dirname(__file__), 'models/best.pt')
         self.shooting_model.load_state_dict(torch.load(model_path))
@@ -20,8 +20,10 @@ class Predictor:
         self.gc_model.eval()
         self.positions = []
         self.predictions = []
+        self.past_aims = []
         self.pos_k = pos_k
         self.gc_k = gc_k
+        self.aim_k = aim_k
 
     def _most_common_string(self, lst):
         counter = Counter(lst)
@@ -50,5 +52,19 @@ class Predictor:
             if len(self.positions) > self.pos_k:
                 self.positions.pop(0)
             pos = np.mean(self.positions, axis=0)
+            self.past_aims.append(pos)
+            if len(self.past_aims) > self.aim_k:
+                self.past_aims.pop(0)
             return result, pos
+
+        if result == 'shoot':
+            if not self.past_aims:
+                return 'idle', None
+            pos = np.mean(self.past_aims, axis=0)
+            k = len(self.past_aims)
+            weights = np.array(range(k, 0, -1))
+            weights = weights / np.sum(weights)
+            pos = np.sum(np.array(self.past_aims) * weights[:, None], axis=0)
+            return result, tuple(pos)
+        
         return result, None

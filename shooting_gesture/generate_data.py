@@ -9,7 +9,7 @@ import mediapipe as mp
 from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
 
-SELF_VIEW = True
+SELF_VIEW = False
 WIDTH, HEIGHT = 1920, 1080
 
 data = []
@@ -145,6 +145,8 @@ while running:
 
     screen = np.zeros((HEIGHT, WIDTH, 3), np.uint8)
     cv2.circle(screen, circle_pos, circle_radius, (255, 0, 0), -1)
+    cv2.putText(screen, f'Data length: {len(data)}', (10, 30),
+                cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
     cv2.imshow('main', screen)
     running = update_circle_pos()
 
