@@ -24,7 +24,7 @@ class GameAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return StoreProvider<AppState>(
-        store: appStateStore,
+        store: AppStateStore,
         child: StoreConnector<AppState, TTSViewModel>(
             converter: (Store<AppState> store) {
           return TTSViewModel.create(store);
@@ -34,7 +34,7 @@ class GameAppBar extends StatelessWidget implements PreferredSizeWidget {
             leading: IconButton(
               icon: const Icon(Icons.home),
               onPressed: () {
-                appStateStore.dispatch(ttsViewModel.stop());
+                AppStateStore.dispatch(ttsViewModel.stop());
                 Navigator.popUntil(context, (route) => route.isFirst);
               },
             ),

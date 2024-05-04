@@ -21,6 +21,8 @@ UserState setUserStateReducer(UserState state, dynamic action) {
   } else if (action is StopTimerAction) {
     state.timer?.cancel();
     return state.copyWith(timer: null);
+  } else if (action is SetHTTPAction) {
+    return state.copyWith(action: action.action);
   }
   return state;
 }

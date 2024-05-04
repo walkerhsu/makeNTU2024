@@ -41,32 +41,32 @@ class AppState {
     this.ttsState = TtsState.playing,
   }) {
     Future.delayed(Duration.zero, () {
-      appStateStore.dispatch(SetAwaitOptionsAction(true));
+      AppStateStore.dispatch(SetAwaitOptionsAction(true));
     });
     flutterTts.setStartHandler(() {
-      appStateStore.dispatch(SetStartAction());
+      AppStateStore.dispatch(SetStartAction());
     });
 
     flutterTts.setCompletionHandler(() {
       print("complete handler");
-      appStateStore.dispatch(SetCompletedAction());
+      AppStateStore.dispatch(SetCompletedAction());
     });
 
     flutterTts.setCancelHandler(() {
       print("cancel handler");
-      appStateStore.dispatch(SetCancelAction());
+      AppStateStore.dispatch(SetCancelAction());
     });
 
     flutterTts.setPauseHandler(() {
-      appStateStore.dispatch(SetPauseAction());
+      AppStateStore.dispatch(SetPauseAction());
     });
 
     flutterTts.setContinueHandler(() {
-      appStateStore.dispatch(SetContinueAction());
+      AppStateStore.dispatch(SetContinueAction());
     });
 
     flutterTts.setErrorHandler((msg) {
-      appStateStore.dispatch(SetErrorAction());
+      AppStateStore.dispatch(SetErrorAction());
     });
   }
 

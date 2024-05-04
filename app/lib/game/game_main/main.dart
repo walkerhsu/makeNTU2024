@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:quickalert/quickalert.dart';
+import 'package:quickalert/widgets/quickalert_dialog.dart';
 import 'package:redux/redux.dart';
 import 'package:rpg_game/game/Components/progress_bar.dart';
 import 'package:rpg_game/game/fetch_request.dart';
@@ -22,9 +23,11 @@ class GameMain extends StatefulWidget {
     super.key,
     required this.story,
     required this.options,
+    required this.status,
   });
   final String story;
   final List<Map<String, dynamic>> options;
+  final String status;
 
   @override
   State<GameMain> createState() => _GameMainState();
@@ -47,6 +50,7 @@ class _GameMainState extends State<GameMain> with TickerProviderStateMixin {
 
   List<String> generateText(String story) {
     String text = story;
+    text = text.replaceAll('\n', '');
     sentences = text.split("。");
     sentences.removeLast();
     print(sentences);
@@ -70,8 +74,8 @@ class _GameMainState extends State<GameMain> with TickerProviderStateMixin {
           _userLastWords == widget.options[3]["option"]) {
         userStateStore.dispatch(SetOptionAction(widget.options[3]["option"]));
       } else {
-        appStateStore.dispatch(SetVoiceTextAction("選擇錯誤，請重新選擇！"));
-        appStateStore.dispatch(SpeakTextAction());
+        AppStateStore.dispatch(SetVoiceTextAction("選擇錯誤，請重新選擇！"));
+        AppStateStore.dispatch(SpeakTextAction());
         return;
       }
     } else if (language == "en") {
@@ -88,24 +92,40 @@ class _GameMainState extends State<GameMain> with TickerProviderStateMixin {
           _userLastWords.toLowerCase() == widget.options[3]["option"]) {
         userStateStore.dispatch(SetOptionAction(widget.options[3]["option"]));
       } else {
-        appStateStore.dispatch(SetVoiceTextAction(
+        AppStateStore.dispatch(SetVoiceTextAction(
             "Invalid option! Please select a valid option!"));
-        appStateStore.dispatch(SpeakTextAction());
+        AppStateStore.dispatch(SpeakTextAction());
         return;
       }
     }
-    appStateStore.dispatch(SetCancelAction());
-    appStateStore.dispatch(SetStorySentencesAction(['']));
+    AppStateStore.dispatch(SetCancelAction());
+    AppStateStore.dispatch(SetStorySentencesAction(['']));
     Navigator.popAndPushNamed(context, '/game/main');
+  }
+
+  void checkBattle() async {
+    if (language == "zh") {
+      if (_userLastWords == "戰鬥") {
+        await setBattle();
+      }
+    }
+  }
+
+  void checkEnd() async {
+    if (language == "zh") {
+      if (_userLastWords == "結束") {
+        await setEnd();
+      }
+    }
   }
 
   @override
   void initState() {
     super.initState();
     _initSpeech();
-    appStateStore.dispatch(SetStorySentencesAction(generateText(widget.story)));
-    appStateStore.dispatch(SetSentenceIndexAction(0));
-    appStateStore.dispatch(SpeakTextAction());
+    AppStateStore.dispatch(SetStorySentencesAction(generateText(widget.story)));
+    AppStateStore.dispatch(SetSentenceIndexAction(0));
+    AppStateStore.dispatch(SpeakTextAction());
   }
 
   @override
@@ -121,7 +141,7 @@ class _GameMainState extends State<GameMain> with TickerProviderStateMixin {
   }
 
   void _startListening() async {
-    appStateStore.dispatch(StopSpeakAction());
+    AppStateStore.dispatch(StopSpeakAction());
     if (_userSpeechEnabled) {
       await _userSpeechToText.listen(
           localeId: locale, onResult: _onSpeechResult);
@@ -129,8 +149,11 @@ class _GameMainState extends State<GameMain> with TickerProviderStateMixin {
   }
 
   void _stopListening() async {
-    checkAnswer();
     await _userSpeechToText.stop();
+    if (widget.options[0]["idx"] == -1) {
+      checkBattle();
+    }
+    checkAnswer();
     setState(() {
       _userLastWords = "";
     });
@@ -144,10 +167,59 @@ class _GameMainState extends State<GameMain> with TickerProviderStateMixin {
     });
   }
 
+  Future setEnd() async {
+    await AppStateStore.dispatch(StopSpeakAction());
+    await userStateStore.dispatch(SetOptionAction(""));
+    await AppStateStore.dispatch(SetSentenceIndexAction(0));
+    await AppStateStore.dispatch(SetStorySentencesAction(['']));
+    await userStateStore.dispatch(SetDestinationAction(0.0, 0.0, "台北"));
+    await userStateStore.dispatch(SetTimeAction(0.1, 0.1));
+    await userStateStore.dispatch(SetHTTPAction("create"));
+    if (!mounted || !context.mounted) return;
+    QuickAlert.show(
+      context: context,
+      type: QuickAlertType.info,
+      text: "The game has ended! Let's see the results ~~ ",
+      barrierDismissible: true,
+    ).then((_) => Navigator.popAndPushNamed(context, '/game/end'));
+  }
+
+  Future setBattle() async {
+    AppStateStore.dispatch(StopSpeakAction());
+    userStateStore.dispatch(SetOptionAction(""));
+    setState(() {
+      showCntNumber = true;
+      _controller = AnimationController(
+          duration: const Duration(seconds: 1), vsync: this);
+      _controller.repeat();
+    });
+    timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      setState(() {
+        if (_cntDown > 0) {
+          _cntDown--;
+        } else {
+          timer!.cancel();
+          postHTTPResponse();
+          QuickAlert.show(
+            context: context,
+            type: QuickAlertType.info,
+            text: "Battle is in progress...",
+            barrierDismissible: true,
+            showConfirmBtn: false,
+          ).then((value) {
+            if (mounted && context.mounted) {
+              Navigator.popAndPushNamed(context, "/game/wait_result");
+            }
+          });
+        }
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return StoreProvider<AppState>(
-        store: appStateStore,
+        store: AppStateStore,
         child: StoreConnector<AppState, TTSViewModel>(
             converter: (Store<AppState> store) {
           return TTSViewModel.create(store);
@@ -157,8 +229,26 @@ class _GameMainState extends State<GameMain> with TickerProviderStateMixin {
                 title: const Text("Game"),
                 leading: IconButton(
                   icon: const Icon(Icons.home),
-                  onPressed: () {
-                    appStateStore.dispatch(ttsViewModel.stop());
+                  onPressed: () async {
+                    AppStateStore.dispatch(ttsViewModel.stop());
+                    bool confirm = false;
+                    await QuickAlert.show(
+                      context: context,
+                      text: "Are you sure you want to leave this story?",
+                      // confirmBtnText: 'Yes',
+                      confirmBtnColor: Colors.green,
+                      confirmBtnText: "Yes",
+                      cancelBtnTextStyle: const TextStyle(
+                          color: Colors.red,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold),
+                      type: QuickAlertType.warning,
+                      onConfirmBtnTap: () {
+                        confirm = true;
+                        Navigator.pop(context);
+                      },
+                    );
+                    if (!mounted || !context.mounted || !confirm) return;
                     Navigator.popUntil(context, (route) => route.isFirst);
                   },
                 ),
@@ -199,100 +289,55 @@ class _GameMainState extends State<GameMain> with TickerProviderStateMixin {
                     backgroundColor: Colors.black,
                   ),
                   StoryBody(
-                    story: '${sentences[appStateStore.state.sentenceIndex]}。',
+                    story: '${sentences[AppStateStore.state.sentenceIndex]}。',
                     options: widget.options,
                   ),
                   const SizedBox(height: 30),
-                  if (widget.options[0]["idx"] != -1)
-                    Text(
-                      _userSpeechToText.isListening
-                          ? _userLastWords
-                          : _userSpeechEnabled
-                              ? 'Tap the microphone to choose your option...'
-                              : 'User Speech not available',
-                      style: TextStyle(
-                          fontSize: 16,
-                          color: Theme.of(context).textTheme.bodySmall!.color),
+                  if (widget.status == "end")
+                    Center(
+                      child: InkWell(
+                        onTap: () async {
+                          await setEnd();
+                        },
+                        child: Container(
+                          width: 100,
+                          padding: const EdgeInsets.all(5),
+                          decoration: BoxDecoration(
+                            color: Colors.purple[100]!,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Center(
+                            child: Text(
+                              "結束",
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 24,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                   if (widget.options[0]["idx"] == -1 && !showCntNumber)
                     Center(
                       child: InkWell(
                         onTap: () async {
-                          appStateStore.dispatch(StopSpeakAction());
-                          setState(() {
-                            showCntNumber = true;
-                            _controller = AnimationController(
-                                duration: const Duration(seconds: 1),
-                                vsync: this);
-                            _controller.repeat();
-                          });
-                          timer =
-                              Timer.periodic(const Duration(seconds: 1), (_) {
-                            setState(() {
-                              if (_cntDown > 0) {
-                                _cntDown--;
-                              } else {
-                                timer!.cancel();
-                                postHTTPResponse();
-                                QuickAlert.show(
-                                  context: context,
-                                  type: QuickAlertType.info,
-                                  text: "Battle is in progress...",
-                                  barrierDismissible: true,
-                                  showConfirmBtn: false,
-                                ).then((value) {
-                                  if (mounted && context.mounted) {
-                                    Navigator.popAndPushNamed(
-                                        context, "/game/wait_result");
-                                  }
-                                });
-                              }
-                            });
-                          });
-                          if (!mounted || !context.mounted) {
-                            return;
-                          }
-
-                          // Timer makePeriodicTimer(
-                          //   Duration duration,
-                          //   void Function(Timer timer) callback, {
-                          //   bool fireNow = false,
-                          // }) {
-                          //   var timer = Timer.periodic(duration, callback);
-                          //   if (fireNow) {
-                          //     callback(timer);
-                          //   }
-                          //   return timer;
-                          // }
-
-                          // _timer = makePeriodicTimer(const Duration(seconds: 1),
-                          //     (timer) {
-                          //   getBattleResult().then((value) {
-                          //     if (value == "playing") {
-                          //       QuickAlert.show(
-                          //         context: context,
-                          //         type: QuickAlertType.info,
-                          //         barrierDismissible: true,
-                          //         showConfirmBtn: false,
-                          //       );
-                          //     } else {
-                          //       Navigator.popAndPushNamed(
-                          //           context, "/game/main");
-                          //     }
-                          //   });
-                          // }, fireNow: true);
+                          await setBattle();
                         },
                         child: Container(
-                          padding: const EdgeInsets.all(10),
+                          width: 100,
+                          padding: const EdgeInsets.all(5),
                           decoration: BoxDecoration(
                             color: Colors.purple[100]!,
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          child: const Text(
-                            "BATTLE",
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 16,
+                          child: const Center(
+                            child: Text(
+                              "戰鬥",
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 24,
+                              ),
                             ),
                           ),
                         ),
@@ -305,24 +350,38 @@ class _GameMainState extends State<GameMain> with TickerProviderStateMixin {
                         '$_cntDown',
                         style: const TextStyle(fontSize: 60, color: Colors.red),
                       ),
-                    )
+                    ),
+                    const SizedBox(height: 50),
+                  Text(
+                    _userSpeechToText.isListening
+                        ? _userLastWords
+                        : !_userSpeechEnabled
+                            ? 'User Speech not available'
+                            : widget.options[0]["idx"] != -1
+                                ? 'Tap to choose your option...'
+                                : widget.status == "end" 
+                                ? 'Tap to see the results...'
+                                : 'Tap to start the battle...',
+                    style: TextStyle(
+                        fontSize: 16,
+                        color: Theme.of(context).textTheme.bodySmall!.color),
+                  ),
+                  
                 ],
               ),
-              floatingActionButton: widget.options[0]["idx"] != -1
-                  ? FloatingActionButton(
-                      onPressed: () async {
-                        await appStateStore.dispatch(
-                            appStateStore.dispatch(StopSpeakAction()));
-                        _userSpeechToText.isNotListening
-                            ? _startListening()
-                            : _stopListening();
-                      },
-                      tooltip: 'Listen',
-                      child: Icon(_userSpeechToText.isNotListening
-                          ? Icons.mic
-                          : Icons.mic_off),
-                    )
-                  : null,
+              floatingActionButton: FloatingActionButton(
+                onPressed: () async {
+                  await AppStateStore.dispatch(
+                      AppStateStore.dispatch(StopSpeakAction()));
+                  _userSpeechToText.isNotListening
+                      ? _startListening()
+                      : _stopListening();
+                },
+                tooltip: 'Listen',
+                child: Icon(_userSpeechToText.isNotListening
+                    ? Icons.mic
+                    : Icons.mic_off),
+              ),
               floatingActionButtonLocation:
                   FloatingActionButtonLocation.miniCenterFloat);
         }));
