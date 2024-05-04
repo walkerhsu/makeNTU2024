@@ -12,11 +12,11 @@ def get_player_info():
     return name, max_health, strength, max_ammo, max_reload_time, max_picture_wait_time
 
 class Player:
-    def __init__(self, name, max_health, strength, max_ammo, max_reload_time, max_picture_wait_time):
+    def __init__(self, name, max_health, strength, max_ammo, max_reload_time, max_picture_wait_time, screen_width, screen_height):
         self.name = name
         self.max_health = max_health
         self.cur_health = max_health
-        self.health_bar_length = SCREEN_WIDTH / 10
+        self.health_bar_length = screen_width / 10
         self.health_ratio = self.max_health / self.health_bar_length
         self.strength = strength
         self.max_ammo = max_ammo
@@ -83,12 +83,12 @@ class Player:
             self.picture_wait_time -= 1
 
 
-    def display_info(self, screen):
+    def display_info(self, screen, screen_width, screen_height):
         font = pygame.font.Font(None, 36)
         health_text = font.render(f"Health: ", True, BLUE)
         screen.blit(health_text, (10, 10))
-        pygame.draw.rect(screen, RED, (health_text.get_width() + 10, 10, self.cur_health / self.health_ratio, int(SCREEN_HEIGHT / 32)))
-        pygame.draw.rect(screen, BLACK, (health_text.get_width() + 10, 10, self.health_bar_length, int(SCREEN_HEIGHT / 32)), 4)
+        pygame.draw.rect(screen, RED, (health_text.get_width() + 10, 10, self.cur_health / self.health_ratio, int(screen_height / 32)))
+        pygame.draw.rect(screen, BLACK, (health_text.get_width() + 10, 10, self.health_bar_length, int(screen_height / 32)), 4)
 
         atk_text = font.render(f"Attack: {self.strength}", True, BLUE)
         screen.blit(atk_text, (10, 50))
