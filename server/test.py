@@ -40,3 +40,5 @@ dictionary = {
     }
 }
 print([*dictionary.values()])
+print([*dictionary.keys()])
+print(dictionary[list(dictionary.keys())[0]])
