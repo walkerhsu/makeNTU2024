@@ -32,9 +32,9 @@ class AppState {
   bool get isWeb => kIsWeb;
 
   AppState({
-    this.volume = 1.0,
+    this.volume = 0.9,
     this.pitch = 1.1,
-    this.rate = 0.5,
+    this.rate = 0.55,
     this.storySentences = const [],
     this.sentenceIndex = 0,
     this.voiceText = "",

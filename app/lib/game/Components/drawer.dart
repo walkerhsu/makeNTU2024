@@ -15,7 +15,7 @@ class DrawerViews extends StatelessWidget {
           height: 55,
         ),
         const Divider(
-          color: Colors.black38,
+          color: Color.fromARGB(255, 29, 2, 67),
           height: 10,
           thickness: 2,
         ),
@@ -24,9 +24,10 @@ class DrawerViews extends StatelessWidget {
             Icons.home,
             size: 30,
           ),
-          title: const Text('Home'),
+          title: const Text('Home', style: TextStyle(fontSize: 20, color: Color.fromARGB(255, 29, 2, 67))),
           onTap: () {
-            Navigator.pushNamed(context, '/home');
+            // Navigator.popUntil(context, (route) => route.isFirst)
+            Navigator.popAndPushNamed(context, '/home');
           },
         ),
         ListTile(
@@ -35,9 +36,9 @@ class DrawerViews extends StatelessWidget {
             width: 30,
             height: 30,
           ),
-          title: const Text('Memoirs'),
+          title: const Text('Memoirs', style: TextStyle(fontSize: 20, color: Color.fromARGB(255, 29, 2, 67))),
           onTap: () {
-            Navigator.pushNamed(context, '/memoirs');
+            Navigator.popAndPushNamed(context, '/memoirs');
           },
         ),
         ListTile(
@@ -46,9 +47,9 @@ class DrawerViews extends StatelessWidget {
             width: 30,
             height: 30,
           ),
-          title: const Text('Settings'),
+          title: const Text('Settings', style: TextStyle(fontSize: 20, color: Color.fromARGB(255, 29, 2, 67))),
           onTap: () {
-            Navigator.pushNamed(context, '/car_settings');
+            Navigator.popAndPushNamed(context, '/car_settings');
           },
         ),
       ],

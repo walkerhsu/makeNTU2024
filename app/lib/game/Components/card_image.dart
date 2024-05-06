@@ -1,12 +1,13 @@
 import "package:flutter/material.dart";
+import "package:rpg_game/game/fetch_request.dart";
 
 // MyCardText
 
-class MyCardImage extends StatelessWidget {
+class MyCardImage extends StatefulWidget {
   final double width;
   final double height;
-  final String text;
   final String imageName;
+  final String text;
   final bool isOnline;
   final double fontSize;
   final Color color;
@@ -18,8 +19,8 @@ class MyCardImage extends StatelessWidget {
 
   const MyCardImage({
     super.key,
-    required this.text,
     required this.imageName,
+    this.text = "",
     this.isOnline = true,
     this.width = 320,
     this.height = 150,
@@ -33,41 +34,65 @@ class MyCardImage extends StatelessWidget {
   });
 
   @override
+  State<MyCardImage> createState() => _MyCardImageState();
+}
+
+class _MyCardImageState extends State<MyCardImage> {
+  String imgDesc = '';
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.text != '') {
+      setState(() {
+        imgDesc = widget.text;
+      });
+    } else {
+      fetchImgDesc(widget.imageName).then((value) => setState(
+            () => imgDesc = value,
+          ));
+    }
+    fetchImgDesc(widget.imageName).then((value) => setState(
+          () => imgDesc = value,
+        ));
+  }
+
+  @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: width,
-      height: height,
+      width: widget.width,
+      height: widget.height,
       child: Card(
-        color: cardColor,
+        color: widget.cardColor,
         child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Row(
               children: [
-                isOnline
+                widget.isOnline
                     ? Image.network(
-                        'http://10.10.2.97:8000/image/$imageName',
-                        width: width * 0.4,
-                        height: height * 0.8,
+                        'http://10.10.2.97:8000/image/${widget.imageName}',
+                        width: widget.width * 0.4,
+                        height: widget.height * 0.8,
                       )
                     : Image.asset(
-                        'assets/images/$imageName',
-                        width: width * 0.4,
-                        height: height * 0.8,
+                        'assets/images/${widget.imageName}',
+                        width: widget.width * 0.4,
+                        height: widget.height * 0.8,
                       ),
                 SizedBox(
-                  width: width * 0.1,
+                  width: widget.width * 0.1,
                 ),
                 SizedBox(
-                  width: width * 0.4,
+                  width: widget.width * 0.4,
                   child: Text(
-                    text,
-                    textAlign: textAlign,
-                    maxLines: maxLines,
-                    overflow: overflow, // Overflow behavior
+                    imgDesc,
+                    textAlign: widget.textAlign,
+                    maxLines: widget.maxLines,
+                    overflow: widget.overflow, // Overflow behavior
                     style: TextStyle(
-                        fontSize: fontSize,
-                        fontWeight: fontWeight,
-                        color: color),
+                        fontSize: widget.fontSize,
+                        fontWeight: widget.fontWeight,
+                        color: widget.color),
                   ),
                 ),
               ],

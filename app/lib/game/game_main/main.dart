@@ -47,6 +47,7 @@ class _GameMainState extends State<GameMain> with TickerProviderStateMixin {
   final String language = "zh";
   final String locale = "zh-TW";
   List<String> sentences = [];
+  String? title;
 
   List<String> generateText(String story) {
     String text = story;
@@ -177,11 +178,48 @@ class _GameMainState extends State<GameMain> with TickerProviderStateMixin {
     await userStateStore.dispatch(SetHTTPAction("create"));
     if (!mounted || !context.mounted) return;
     QuickAlert.show(
-      context: context,
-      type: QuickAlertType.info,
-      text: "The game has ended! Let's see the results ~~ ",
-      barrierDismissible: true,
-    ).then((_) => Navigator.popAndPushNamed(context, '/game/end'));
+        context: context,
+        type: QuickAlertType.custom,
+        title: 'Saving Memori ...',
+        barrierDismissible: true,
+        confirmBtnText: 'Save',
+        widget: TextFormField(
+          decoration: InputDecoration(
+              alignLabelWithHint: true,
+              hintText: 'Title',
+              prefixIcon: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: Image.asset(
+                  'assets/images/tag.png',
+                  width: 20,
+                  height: 20,
+                ),
+              )),
+          // textInputAction: TextInputAction.next,
+          onChanged: (value) => title = value,
+        ),
+        onConfirmBtnTap: () async {
+          if (title == null || title!.isEmpty) {
+            await QuickAlert.show(
+              context: context,
+              type: QuickAlertType.error,
+              text: "Title cannot be empty!",
+            );
+            return;
+          }
+          Navigator.pop(context);
+          await Future.delayed(const Duration(milliseconds: 500));
+          if (!mounted || !context.mounted) return;
+          await QuickAlert.show(
+            context: context,
+            type: QuickAlertType.success,
+            text: "Memori $title is saved!",
+          );
+          print(title!);
+          await postMemoryResponse(title!);
+          if (!mounted || !context.mounted) return;
+          Navigator.popUntil(context, (route) => route.isFirst);
+        });
   }
 
   Future setBattle() async {
@@ -285,7 +323,7 @@ class _GameMainState extends State<GameMain> with TickerProviderStateMixin {
                   ProgressBar(
                     width: MediaQuery.of(context).size.width * 0.8,
                     height: 25,
-                    color: Colors.blue,
+                    color: const Color.fromARGB(255, 249, 163, 3),
                     backgroundColor: Colors.black,
                   ),
                   StoryBody(
@@ -303,7 +341,7 @@ class _GameMainState extends State<GameMain> with TickerProviderStateMixin {
                           width: 100,
                           padding: const EdgeInsets.all(5),
                           decoration: BoxDecoration(
-                            color: Colors.purple[100]!,
+                            color: const Color.fromARGB(255, 249, 163, 3),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: const Center(
@@ -318,7 +356,9 @@ class _GameMainState extends State<GameMain> with TickerProviderStateMixin {
                         ),
                       ),
                     ),
-                  if (widget.options[0]["idx"] == -1 && !showCntNumber)
+                  if (widget.status != "end" &&
+                      widget.options[0]["idx"] == -1 &&
+                      !showCntNumber)
                     Center(
                       child: InkWell(
                         onTap: () async {
@@ -328,7 +368,7 @@ class _GameMainState extends State<GameMain> with TickerProviderStateMixin {
                           width: 100,
                           padding: const EdgeInsets.all(5),
                           decoration: BoxDecoration(
-                            color: Colors.purple[100]!,
+                            color: const Color.fromARGB(255, 249, 163, 3),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: const Center(
@@ -351,7 +391,7 @@ class _GameMainState extends State<GameMain> with TickerProviderStateMixin {
                         style: const TextStyle(fontSize: 60, color: Colors.red),
                       ),
                     ),
-                    const SizedBox(height: 50),
+                  const SizedBox(height: 50),
                   Text(
                     _userSpeechToText.isListening
                         ? _userLastWords
@@ -359,14 +399,13 @@ class _GameMainState extends State<GameMain> with TickerProviderStateMixin {
                             ? 'User Speech not available'
                             : widget.options[0]["idx"] != -1
                                 ? 'Tap to choose your option...'
-                                : widget.status == "end" 
-                                ? 'Tap to see the results...'
-                                : 'Tap to start the battle...',
+                                : widget.status == "end"
+                                    ? 'Tap to see the results...'
+                                    : 'Tap to start the battle...',
                     style: TextStyle(
                         fontSize: 16,
                         color: Theme.of(context).textTheme.bodySmall!.color),
                   ),
-                  
                 ],
               ),
               floatingActionButton: FloatingActionButton(

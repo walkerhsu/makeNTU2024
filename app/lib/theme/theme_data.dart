@@ -4,15 +4,16 @@ import 'package:flutter/material.dart';
 class AppTheme {
   static ThemeData themeData(bool isDarkTheme, BuildContext context) {
     return ThemeData(
-      scaffoldBackgroundColor: isDarkTheme ? const Color.fromRGBO(48, 32, 77, 1.0) : Colors.white,
+      scaffoldBackgroundColor: isDarkTheme ? const Color.fromARGB(255, 29, 2, 67) : Colors.white,
       // primaryColor: const Color.fromRGBO(48, 32, 77, 1.0),
       appBarTheme: AppBarTheme(
-        color: isDarkTheme ? const Color.fromARGB(255, 182, 159, 98) : Colors.white,
+        foregroundColor: isDarkTheme ? const Color.fromARGB(255, 29, 2, 67) : Colors.white,
+        color: isDarkTheme ? const Color.fromARGB(255, 249, 163, 3) : Colors.white,
       ),
       textTheme: TextTheme(
         bodySmall: TextStyle(
           fontSize: 12,
-          color: isDarkTheme ? const Color.fromARGB(255, 195, 191, 191) : Colors.black.withOpacity(0.8),
+          color: isDarkTheme ? const Color.fromARGB(255, 249, 163, 3) : Colors.black.withOpacity(0.8),
         ),
         // bodyMedium: TextStyle(
         //   fontSize: 24,
@@ -25,7 +26,7 @@ class AppTheme {
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: isDarkTheme ? Colors.white.withOpacity(0.2) : Colors.black.withOpacity(0.2),
+          backgroundColor: isDarkTheme ? Color.fromARGB(255, 249, 163, 3) : Colors.black.withOpacity(0.2),
           // textStyle: const TextStyle(
           //   fontSize: 18,
           //   fontWeight: FontWeight.bold,

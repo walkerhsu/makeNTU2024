@@ -18,17 +18,14 @@ Future<Map<String, dynamic>> getHTTPResponse(
     print(endpoint);
   }
 
-  return {
-    'story':
-        "在一個遙遠的地方，有一隻小貓，牠的名字叫做米克。他是一隻非常可愛的小貓，總是在家裡的陽台上曬太陽。有一天，米克決定要去探險，於是他走出了家門，開始了他的冒險之旅。",
-    'options': [
-      {"idx": 1, "option": "米可貓"},
-      {"idx": 2, "option": "米可貓"},
-      {"idx": 3, "option": "米可狗"},
-      {"idx": 4, "option": "米可誅"}
-    ],
-    'status': 'end'
-  };
+  // return {
+  //   'story':
+  //       "在一個遙遠的地方，有一隻小貓，牠的名字叫做米克。他是一隻非常可愛的小貓，總是在家裡的陽台上曬太陽。有一天，米克決定要去探險，於是他走出了家門，開始了他的冒險之旅。",
+  //   'options': [
+  //     {"idx": -1, "option": "error"}
+  //   ],
+  //   'status': 'end'
+  // };
 
   // return {
   //   'story':
@@ -51,9 +48,9 @@ Future<Map<String, dynamic>> getHTTPResponse(
     // If the request was successful, parse the response JSON
     Map<String, dynamic> responseData = json.decode(response.body);
     List<Map<String, dynamic>> options = [];
-    print(responseData);
-    print(responseData["story"]);
-    print(responseData["options"]);
+    // print(responseData);
+    // print(responseData["story"]);
+    // print(responseData["options"]);
     if ((responseData["options"] as List).isEmpty) {
       print("empty");
       options = [
@@ -79,7 +76,7 @@ Future<Map<String, dynamic>> getHTTPResponse(
 Future<void> postHTTPResponse() async {
   // Post the response to a certain http request
   String endpoint = "http://10.10.2.97:8000/ready_battle";
-  print(endpoint);
+  // print(endpoint);
 
   var response = await http.post(
     Uri.parse(endpoint),
@@ -89,7 +86,80 @@ Future<void> postHTTPResponse() async {
   );
   if (response.statusCode == 200) {
     // If the request was successful, parse the response JSON
-    print("Success");
+    // print("Success");
+  } else {
+    // If the request failed, return an error message
+    throw Exception('Failed to get response from Server');
+  }
+}
+
+Future<void> postMemoryResponse(String title) async {
+  // Post the response to a certain http request
+  // print(title);
+  String endpoint = "http://10.10.2.97:8000/save_memory/$title";
+  // print(endpoint);
+  // post with data
+
+  var response = await http.post(
+    Uri.parse(endpoint),
+    headers: <String, String>{
+      'Content-Type': 'application/json',
+    },
+  );
+  if (response.statusCode == 200) {
+    // If the request was successful, parse the response JSON
+    // print("Success");
+  } else {
+    // If the request failed, return an error message
+    throw Exception('Failed to get response from Server');
+  }
+}
+
+Future retrieveMemoryResponse() async {
+  // Post the response to a certain http request
+  String endpoint = "http://10.10.2.97:8000/retrieve_memories_title";
+  // print(endpoint);
+  // post with data
+
+  var response = await http.get(
+    Uri.parse(endpoint),
+    headers: <String, String>{
+      'Content-Type': 'application/json',
+    },
+  );
+  if (response.statusCode == 200) {
+    // If the request was successful, parse the response JSON
+    print(response.body);
+    if (response.body == "") {
+      return [];
+    } else if (!response.body.contains('\n')) {
+      print("in");
+      return [response.body];
+    }
+    return response.body.split("\n");
+  } else {
+    // If the request failed, return an error message
+    throw Exception('Failed to get response from Server');
+  }
+}
+
+Future retrieveSingleMemoryResponse(String title) async {
+  // Post the response to a certain http request
+  String endpoint = "http://10.10.2.97:8000/retrieve_memory/$title";
+  print(endpoint);
+  // post with data
+
+  var response = await http.get(
+    Uri.parse(endpoint),
+    headers: <String, String>{
+      'Content-Type': 'application/json',
+    },
+  );
+  if (response.statusCode == 200) {
+    // If the request was successful, parse the response JSON
+    Map<String, dynamic> responseData = json.decode(response.body);
+    // print(responseData);
+    return responseData;
   } else {
     // If the request failed, return an error message
     throw Exception('Failed to get response from Server');
@@ -120,7 +190,7 @@ Future<String> getBattleResult() async {
 
 Future fetchAllImages() async {
   // Fetch all images from the server
-  String endpoint = "http://10.10.2.97:8000/get_all_pics";
+  String endpoint = "http://10.10.2.97:8000/get_cur_pics";
   print(endpoint);
   var response = await http.get(
     Uri.parse(endpoint),
@@ -130,6 +200,9 @@ Future fetchAllImages() async {
   );
   if (response.statusCode == 200) {
     // If the request was successful, parse the response JSON
+    if (response.body == "") {
+      return [];
+    }
     String responseData = response.body;
     return responseData.split("\n");
     // "filename 1\nfilename 2\nfilename 3"
@@ -139,23 +212,24 @@ Future fetchAllImages() async {
   }
 }
 
-Future fetchMemoirs() async {
+Future fetchImgDesc(String filename) async {
   // Fetch all images from the server
-  // String endpoint = "http://
-  return [
-    {
-      "image": "assets/images/taipei-101.png",
-      "title": "Taipei",
-      "date": "2024-04-25",
-      "destination": "Taipei 101"
+  String endpoint = "http://10.10.2.97:8000/image_desc/$filename";
+  var response = await http.get(
+    Uri.parse(endpoint),
+    headers: <String, String>{
+      'Content-Type': 'application/json',
     },
-    {
-      "image": "assets/images/river.png",
-      "title": "Kaohsiung",
-      "date": "2024-05-02",
-      "destination": "Kaohsiung Love River"
-    },
-  ];
+  );
+  if (response.statusCode == 200) {
+    // If the request was successful, parse the response JSON
+    String responseData = response.body;
+    return responseData;
+    // "filename 1\nfilename 2\nfilename 3"
+  } else {
+    // If the request failed, return an error message
+    throw Exception('Failed to get response from Server');
+  }
 }
 
 String idx2Str(int idx, String language) {

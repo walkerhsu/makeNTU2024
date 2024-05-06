@@ -65,7 +65,7 @@ class _GameMainBuilderState extends State<GameMainBuilder> {
                 ProgressBar(
                   width: MediaQuery.of(context).size.width * 0.8,
                   height: 25,
-                  color: Colors.blue,
+                  color: const Color.fromARGB(255, 249, 163, 3),
                   backgroundColor: Colors.black,
                 ),
                 const MyLoading(),
