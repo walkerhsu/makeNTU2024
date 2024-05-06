@@ -5,6 +5,7 @@ import 'package:rpg_game/car_settings.dart';
 import 'package:rpg_game/game/game_main/game_end.dart';
 import 'package:rpg_game/game/game_main/wait_result.dart';
 import 'package:rpg_game/memoirs.dart';
+import 'package:rpg_game/memori_detail.dart';
 
 import 'welcome.dart';
 import 'game/game_settings/game_settings.dart';
@@ -31,6 +32,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/home': (context) => const WelcomePage(),
         '/memoirs': (context) => const MemoirsPage(),
+        '/memoris_detail': (context) =>  const MemoriDetailPage(),
         '/car_settings': (context) => const CarSettingsPage(),
         '/game/settings': (context) => const GameSettingsPage(),
         '/game/main': (context) => const GameMainBuilder(),

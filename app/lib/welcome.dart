@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:quickalert/quickalert.dart';
 import 'package:rpg_game/game/Components/drawer.dart';
 
 class WelcomePage extends StatelessWidget {
@@ -15,10 +16,27 @@ class WelcomePage extends StatelessWidget {
                       Scaffold.of(context).openDrawer();
                     },
                   )),
+          title: const Text("CaRPG"),
+          actions: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              child: InkWell(
+                onTap: () {
+                  QuickAlert.show(
+                    context: context,
+                    type: QuickAlertType.info,
+                    text:
+                        "This is CaRPG. With CaRPG, you can interact with the surroundings while immersed in the story corresponded with your tour trip.\n\n Now, press Play and enjoy the game!",
+                  );
+                },
+                child: const Icon(Icons.question_mark_rounded),
+              ),
+            ),
+          ],
         ),
         drawer: Drawer(
           width: MediaQuery.of(context).size.width * 0.6,
-          backgroundColor: const Color.fromARGB(255, 72, 112, 154),
+          backgroundColor: Color.fromARGB(255, 249, 163, 3),
           // Define your drawer contents here
           child: const DrawerViews(),
         ),
@@ -30,7 +48,7 @@ class WelcomePage extends StatelessWidget {
                 height: 40,
               ),
               Image.asset(
-                "assets/images/quiz.jpg",
+                "assets/images/main.png",
                 width: MediaQuery.of(context).size.width * 0.9,
               ),
               const SizedBox(
@@ -43,7 +61,7 @@ class WelcomePage extends StatelessWidget {
                     fontSize: 52,
                     fontStyle: FontStyle.italic,
                     letterSpacing: 2,
-                    color: Colors.yellow),
+                    color: Color.fromARGB(255, 249, 163, 3)),
               ),
               const SizedBox(height: 50),
               SizedBox(
@@ -55,7 +73,7 @@ class WelcomePage extends StatelessWidget {
                       },
                       style: ButtonStyle(
                           backgroundColor:
-                              MaterialStateProperty.all(Colors.red),
+                              MaterialStateProperty.all(Color.fromARGB(255, 249, 163, 3)),
                           shape: MaterialStateProperty.all(
                               RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(25)))),
@@ -64,7 +82,7 @@ class WelcomePage extends StatelessWidget {
                         style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 20,
-                            color: Colors.white),
+                            ),
                       ))),
               const SizedBox(
                 height: 30,

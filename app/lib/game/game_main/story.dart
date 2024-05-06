@@ -128,7 +128,7 @@ class _StoryBodyState extends State<StoryBody> {
                 text: option['option'],
                 textAlign: TextAlign.center,
                 maxLines: 2,
-                cardColor: Colors.purple[100]!,
+                cardColor: const Color.fromARGB(255, 249, 163, 3),
               )))
           .toList(),
     );

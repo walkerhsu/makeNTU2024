@@ -172,7 +172,7 @@ class _ProgressBarState extends State<ProgressBar>
     // TODO: Remove this line
     bool test = true;
     if (test) {
-      return 1000;
+      return 140;
     }
     final response = await http.get(Uri.parse(url));
 

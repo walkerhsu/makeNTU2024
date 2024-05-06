@@ -6,16 +6,12 @@ class MyMemoirImage extends StatelessWidget {
   final double width;
   final double height;
   final String title;
-  final String date;
-  final String dest;
   final String imageURL;
   final double titleFontSize;
-  final double dateFontSize;
   final double destFontSize;
   final Color color;
   final Color cardColor;
   final FontWeight titleFontWeight;
-  final FontWeight dateFontWeight;
   final FontWeight destFontWeight;
   final TextAlign textAlign;
   final int maxLines;
@@ -25,17 +21,13 @@ class MyMemoirImage extends StatelessWidget {
     super.key,
     required this.imageURL,
     required this.title,
-    required this.date,
-    required this.dest,
     this.width = 320,
     this.height = 150,
     this.titleFontSize = 24,
-    this.dateFontSize = 12,
     this.destFontSize = 18,
     this.color = Colors.black,
     this.cardColor = const Color.fromARGB(255, 220, 220, 220),
     this.titleFontWeight = FontWeight.bold,
-    this.dateFontWeight = FontWeight.normal,
     this.destFontWeight = FontWeight.normal,
     this.textAlign = TextAlign.center,
     this.maxLines = 2,
@@ -47,60 +39,41 @@ class MyMemoirImage extends StatelessWidget {
     return SizedBox(
       width: width,
       height: height,
-      child: Card(
-        color: cardColor,
-        child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                Image.asset(
-                  imageURL,
-                  width: width * 0.4,
-                  height: height * 0.8,
-                ),
-                SizedBox(
-                  width: width * 0.1,
-                ),
-                SizedBox(
-                  width: width * 0.4,
-                  child: Column(children: [
-                    Text(
-                      title,
-                      textAlign: textAlign,
-                      style: TextStyle(
-                          fontSize: titleFontSize,
-                          color: color,
-                          fontWeight: titleFontWeight),
+        child: Card(
+          color: cardColor,
+          child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  Image.asset(
+                    imageURL,
+                    width: width * 0.4,
+                    height: height * 0.8,
+                  ),
+                  SizedBox(
+                    width: width * 0.1,
+                  ),
+                  SizedBox(
+                    width: width * 0.4,
+                    child: Column(
+                      children: [
+                        Text(
+                          title,
+                          textAlign: textAlign,
+                          style: TextStyle(
+                              fontSize: titleFontSize,
+                              color: color,
+                              fontWeight: titleFontWeight),
+                        ),
+                        const SizedBox(
+                          height: 5,
+                        ),
+                      ],
                     ),
-                    const SizedBox(
-                      height: 5,
-                    ),
-                    Text(
-                      date,
-                      textAlign: textAlign,
-                      style: TextStyle(
-                          fontSize: dateFontSize,
-                          color: color,
-                          fontWeight: dateFontWeight),
-                    ),
-                    const SizedBox(
-                      height: 5,
-                    ),
-                    Text(
-                      dest,
-                      textAlign: textAlign,
-                      maxLines: maxLines,
-                      overflow: overflow, // Overflow behavior
-                      style: TextStyle(
-                          fontSize: destFontSize,
-                          color: color,
-                          fontWeight: destFontWeight),
-                    ),
-                  ],),
-                ),
-              ],
-            )),
-      ),
+                  ),
+                ],
+              )),
+        ),
     );
   }
 }

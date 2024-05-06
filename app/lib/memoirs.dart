@@ -2,14 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:rpg_game/game/Components/drawer.dart';
 import 'package:rpg_game/game/Components/memoir.dart';
 import 'package:rpg_game/game/fetch_request.dart';
+import 'package:rpg_game/memori_detail.dart';
 
 class MemoirsPage extends StatelessWidget {
   const MemoirsPage({super.key});
-
+  final images = const [
+    'assets/images/mountain.png',
+    'assets/images/taipei-101.png',
+    'assets/images/river.png',
+    'assets/images/river.png',
+    'assets/images/mountain.png',
+    'assets/images/river.png',
+    'assets/images/taipei-101.png',
+    'assets/images/river.png',
+    'assets/images/mountain.png',
+    'assets/images/mountain.png'
+  ];
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-        future: fetchMemoirs(),
+        future: retrieveMemoryResponse(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Scaffold(
@@ -36,20 +48,33 @@ class MemoirsPage extends StatelessWidget {
                 child: const DrawerViews(),
               ),
               body: ListView.builder(
-                  itemCount: (snapshot.data as List).length,
+                  itemCount: (snapshot.data as List<String>).length,
                   itemBuilder: (context, index) {
                     return Column(
                       children: [
                         const SizedBox(
                           height: 10,
                         ),
-                        MyMemoirImage(
-                          imageURL: snapshot.data![index]["image"],
-                          title: snapshot.data![index]["title"],
-                          date: snapshot.data![index]["date"],
-                          dest: snapshot.data![index]["destination"],
-                          width: 350,
-                          height: 150,
+                        InkWell(
+                          child: MyMemoirImage(
+                            imageURL: images[index],
+                            title: snapshot.data[index],
+                            width: 350,
+                            height: 150,
+                          ),
+                          onTap: () async {
+                            Map<String, dynamic> response =
+                                await retrieveSingleMemoryResponse(
+                                    snapshot.data[index]);
+                            if (!context.mounted) return;
+                            print(response["title"]);
+                            Navigator.pushNamed(context, '/memoris_detail',
+                                arguments: {
+                                  'title': response["title"],
+                                  'imagesURLs': response["images"],
+                                  'story': response["story"]
+                                });
+                          },
                         ),
                         const SizedBox(
                           height: 10,
@@ -64,6 +89,7 @@ class MemoirsPage extends StatelessWidget {
                       ],
                     );
                   }),
+              drawerEnableOpenDragGesture: false,
             );
           }
         });

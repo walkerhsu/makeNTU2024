@@ -48,7 +48,7 @@ class _MyLoadingState extends State<MyLoading> {
           Center(
             child: LoadingAnimationWidget.staggeredDotsWave(
               size: 150,
-              color: Colors.blue,
+              color: Color.fromARGB(255, 249, 163, 3),
             ),
           ),
           const SizedBox(

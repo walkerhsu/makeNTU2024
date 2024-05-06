@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:rpg_game/game/Components/card_image.dart';
 import 'package:rpg_game/game/Components/drawer.dart';
-import 'package:rpg_game/game/Components/memoir.dart';
-import 'package:rpg_game/game/fetch_request.dart';
 
 class CarSettingsPage extends StatelessWidget {
   const CarSettingsPage({super.key});
@@ -44,6 +41,7 @@ class CarSettingsPage extends StatelessWidget {
           ),
         ],
       ),
+      drawerEnableOpenDragGesture: false
     );
   }
 }
