@@ -10,17 +10,17 @@ CaRPG is an in-car RPG game designed for interactive smart window. Users can cho
 3. Gesture-Based Shooting Game.
 4. Maintain Travel Records.
  
-## Techiniques
+## Techniques
 ### Storyteller
 - Flutter
-- Speech <=> Text
+- TTS (Text to Speech), ASR (Auto Speech Recognition)
 ### Backend Server
 - Fast API
 - OpenAI GPT Assistants
 - Database(MongoDB)
 ### Game
 - Gesture Capture and Recognition
-- Self Trained Models
+- Self-Trained Pytorch Models
 - Pygame
 
 ## Future Work
